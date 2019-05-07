@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="default_web_client_id" translatable="false">46767998073-rm2ush5ipge1v429n3hrf8nqkg0m0erp.apps.googleusercontent.com</string>
+    <string name="firebase_database_url" translatable="false">https://security-database-e40d1.firebaseio.com</string>
+    <string name="gcm_defaultSenderId" translatable="false">46767998073</string>
+    <string name="google_api_key" translatable="false">AIzaSyCWIQarAS85OMyRm85aB623ZuYR_usoADs</string>
+    <string name="google_app_id" translatable="false">1:46767998073:android:6fddbf0bc1b4e2c3</string>
+    <string name="google_crash_reporting_api_key" translatable="false">AIzaSyCWIQarAS85OMyRm85aB623ZuYR_usoADs</string>
+    <string name="google_storage_bucket" translatable="false">security-database-e40d1.appspot.com</string>
+    <string name="project_id" translatable="false">security-database-e40d1</string>
+</resources>
