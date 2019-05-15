@@ -32,7 +32,7 @@
         android:layout_marginTop="34dp"
         android:layout_marginEnd="26dp"
         android:layout_marginBottom="316dp"
-        android:text="Update Schedule Information"
+        android:text="@string/sched_update"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="1.0"
