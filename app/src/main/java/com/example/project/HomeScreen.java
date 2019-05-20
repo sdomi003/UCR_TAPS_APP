@@ -28,7 +28,7 @@ public class HomeScreen extends AppCompatActivity {
     private FirebaseUser user;
     private Button updatePersonal, updateSchedule,google_maps;
     private String nextLocation;                                                //0-------------------- test
-    private User_Information userInfo;
+    private static User_Information userInfo;
 
     private static final String TAG = "User";
 
@@ -71,6 +71,7 @@ public class HomeScreen extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 Intent myIntent = new Intent(HomeScreen.this, EditUserActivity.class);
+                myIntent.putExtra("personalData",userInfo);
                 startActivity(myIntent);
             }
         });

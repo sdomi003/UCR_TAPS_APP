@@ -3,15 +3,18 @@ import android.support.annotation.NonNull;
 import android.util.Log;
 
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
 
+import java.io.Serializable;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 
-public class User_Information {
+public class User_Information implements Serializable {
     private String FirstName;
     private String LastName;
     public String Phone;
@@ -54,4 +57,17 @@ public class User_Information {
         return Phone;
     }
 
+    public String UpdatePersonal(String uid, String first, String last, String phone){
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        db.collection("User_Information").document(uid)
+                .update(
+                        "First Name",first,
+                        "Last Name",last,
+                        "Phone Number",phone
+                );
+        FirstName=first;
+        LastName=last;
+        Phone=phone;
+        return uid;
+    }
 }

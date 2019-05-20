@@ -7,8 +7,10 @@ import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.TextView;
 
+import com.firebase.ui.auth.data.model.User;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
@@ -23,51 +25,36 @@ public class EditUserActivity extends AppCompatActivity {
     private Button Personal_Update;
     private FirebaseAuth Authentication;
     private FirebaseUser user;
+    private static User_Information userInfo;
+    private static String uid;
+
     private static final String TAG = "EditUserActivity";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        userInfo = (User_Information) getIntent().getSerializableExtra("personalData");
         Authentication = FirebaseAuth.getInstance();
         user = Authentication.getCurrentUser();
-        String uid = user.getUid();
-
-
-        DocumentReference docRef = db.collection("User_Information").document(uid);
-        docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
-            @Override
-            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
-                if (task.isSuccessful()) {
-                    DocumentSnapshot document = task.getResult();
-                    if (document.exists()) {
-                        Log.d(TAG, "DocumentSnapshot data: " + document.getData());
-                        TextView textView = findViewById(R.id.First_Name);
-                        textView.setText(document.get("First Name").toString());
-                        TextView textView1 = findViewById(R.id.Last_Name);
-                        textView1.setText(document.get("Last Name").toString());
-                        TextView textView2 = findViewById(R.id.Last_Name);
-                        textView2.setText(document.get("Phone Number").toString());
-
-                    } else {
-                        Log.d(TAG, "No such document");
-                    }
-                } else {
-                    Log.d(TAG, "get failed with ", task.getException());
-                }
-            }
-        });
+        uid = user.getUid();
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_edit_user);
+        TextView textView = findViewById(R.id.First_Name);
+        textView.setText(userInfo.AccessFirst());
+        TextView textView1 = findViewById(R.id.Last_Name);
+        textView1.setText(userInfo.AccessLast());
+        TextView textView2 = findViewById(R.id.Phone_Number);
+        textView2.setText(userInfo.AccessPhone());
 
         Personal_Update = findViewById(R.id.button);
         Personal_Update.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 Intent myIntent = new Intent(EditUserActivity.this, EditUserActivity.class);
-                //Call function that updates personal data                                                        //Once this button is clicked, should call an update function that updates First Name
-                                                                                                                 //Last Name and Phone Number even if changes were not made
-                                                                                                                // Function is not implemented yet
+                userInfo.UpdatePersonal(uid,((EditText)findViewById(R.id.First_Name)).getText().toString(),
+                        ((EditText)findViewById(R.id.Last_Name)).getText().toString(),
+                        ((EditText)findViewById(R.id.Phone_Number)).getText().toString());
+                myIntent.putExtra("personalData",userInfo);
                 startActivity(myIntent);
             }
         });
