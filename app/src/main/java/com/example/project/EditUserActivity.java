@@ -41,9 +41,13 @@ public class EditUserActivity extends AppCompatActivity {
                     DocumentSnapshot document = task.getResult();
                     if (document.exists()) {
                         Log.d(TAG, "DocumentSnapshot data: " + document.getData());
-                        TextView textView = (TextView) findViewById(R.id.First_Name);                   //This and next line fetches data from document and puts text into the fields.
-                        textView.setText(document.get("First Name").toString());                        //Fix this so that last name and Phone number are also fetched from data from document
-                                                                                                        // and put into fields
+                        TextView textView = findViewById(R.id.First_Name);
+                        textView.setText(document.get("First Name").toString());
+                        TextView textView1 = findViewById(R.id.Last_Name);
+                        textView1.setText(document.get("Last Name").toString());
+                        TextView textView2 = findViewById(R.id.Last_Name);
+                        textView2.setText(document.get("Phone Number").toString());
+
                     } else {
                         Log.d(TAG, "No such document");
                     }
