@@ -57,6 +57,7 @@ public class HomeScreen extends AppCompatActivity {
                     Log.d(TAG, "get failed with ", task.getException());
                 }
                 nextLocation = nextClass(userInfo);
+                System.out.println(nextLocation);
                 TextView textView = findViewById(R.id.Greeting);
                 textView.setText("Hello " + userInfo.AccessFirst() +"!");
             }
@@ -97,7 +98,7 @@ public class HomeScreen extends AppCompatActivity {
                     myIntent = new Intent(HomeScreen.this, HomeScreen.class);
                 }
                 else{
-                    myIntent = new Intent(HomeScreen.this, ScheduleActivity.class);      // CHANGE ACTIVITY DESTINATION
+                    myIntent = new Intent(HomeScreen.this, LaunchGoogleMaps.class);
                     myIntent.putExtra("nextClass",nextLocation);
                 }
                 startActivity(myIntent);
