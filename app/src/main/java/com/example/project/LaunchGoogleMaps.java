@@ -14,11 +14,26 @@ public class LaunchGoogleMaps extends AppCompatActivity {
 
         Uri gmmIntentUri;
         next_class_loc = getIntent().getStringExtra("nextClass");
-
-        String nextClass = next_class_loc.replace(' ', '+');
-        nextClass = nextClass + "+Riverside,+California";
-        nextClass = "google.navigation:q=" + nextClass;
-        gmmIntentUri = Uri.parse(nextClass);
+        switch (next_class_loc) {
+            case "Winston Chung Hall":
+                gmmIntentUri = Uri.parse("google.navigation:q=Parking+Lot+24+Riverside,+CA+92507");
+                break;
+            case "Bourns Hall":
+                gmmIntentUri = Uri.parse("google.navigation:q=Parking+Lot+24+Riverside,+CA+92507");
+                break;
+            case "Sproul Hall":
+                gmmIntentUri = Uri.parse("google.navigation:q=Parking+Lot+30+Riverside,+CA+92507");
+                break;
+            case "Watkins Hall":
+                gmmIntentUri = Uri.parse("google.navigation:q=Parking+Lot+30+Riverside,+CA+92507");
+                break;
+            case "Pierce Hall":
+                gmmIntentUri = Uri.parse("google.navigation:q=Parking+Lot+30+Riverside,+CA+92507");
+                break;
+            default:
+                gmmIntentUri = Uri.parse("google.navigation:q=Parking+Lot+30+Riverside,+CA+92507");
+                break;
+        }
 
         Intent mapIntent = new Intent(Intent.ACTION_VIEW, gmmIntentUri);
         mapIntent.setPackage("com.google.android.apps.maps");

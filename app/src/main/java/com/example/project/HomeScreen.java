@@ -97,7 +97,7 @@ public class HomeScreen extends AppCompatActivity {
                     myIntent = new Intent(HomeScreen.this, HomeScreen.class);
                 }
                 else{
-                    myIntent = new Intent(HomeScreen.this, ScheduleActivity.class);      // CHANGE ACTIVITY DESTINATION
+                    myIntent = new Intent(HomeScreen.this, LaunchGoogleMaps.class);
                     myIntent.putExtra("nextClass",nextLocation);
                 }
                 startActivity(myIntent);
