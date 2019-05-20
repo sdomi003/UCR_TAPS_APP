@@ -29,11 +29,9 @@
         android:layout_width="359dp"
         android:layout_height="65dp"
         android:layout_marginStart="26dp"
-        android:layout_marginTop="34dp"
+        android:layout_marginTop="16dp"
         android:layout_marginEnd="26dp"
-        android:layout_marginBottom="316dp"
-        android:text="@string/sched_update"
-        app:layout_constraintBottom_toBottomOf="parent"
+        android:text="Update Schedule Information"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="1.0"
         app:layout_constraintStart_toStartOf="parent"
@@ -54,4 +52,20 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
+
+    <Button
+        android:id="@+id/launch_google_maps"
+        android:layout_width="355dp"
+        android:layout_height="62dp"
+        android:layout_marginStart="161dp"
+        android:layout_marginTop="21dp"
+        android:layout_marginEnd="162dp"
+        android:layout_marginBottom="256dp"
+        android:text="Take Me To My Next Class"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.498"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/UpdateScheduleOption"
+        app:layout_constraintVertical_bias="0.0" />
 </android.support.constraint.ConstraintLayout>

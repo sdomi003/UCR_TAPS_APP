@@ -2,6 +2,7 @@ package com.example.project;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.UserHandle;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
@@ -16,14 +17,20 @@ import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.List;
+
 import static com.google.firebase.auth.FirebaseAuth.getInstance;
 
 public class HomeScreen extends AppCompatActivity {
 
     private FirebaseUser user;
-    private static final String TAG = "HomeScreen";
-    private String name = "";
-    private Button updatePersonal, updateSchedule;
+    private Button updatePersonal, updateSchedule,google_maps;
+    private String nextLocation;                                                //0-------------------- test
+    private static User_Information userInfo;
+
+    private static final String TAG = "User";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -31,10 +38,10 @@ public class HomeScreen extends AppCompatActivity {
         user = getInstance().getCurrentUser();
         String uid = user.getUid();
 
-        super.onCreate(savedInstanceState);
+        DocumentReference docRef = db.collection("User_Information").document(uid);
 
-        //------------------------------------------------------            This is the Hello [username] box
-        DocumentReference docRef = db.collection("User_Information").document(uid);             //Need to optimize to load faster
+        super.onCreate(savedInstanceState);
+        //------------------------------------------------------
         docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
             @Override
             public void onComplete(@NonNull Task<DocumentSnapshot> task) {
@@ -42,29 +49,35 @@ public class HomeScreen extends AppCompatActivity {
                     DocumentSnapshot document = task.getResult();
                     if (document.exists()) {
                         Log.d(TAG, "DocumentSnapshot data: " + document.getData());
-                        name = document.get("First Name").toString();
+                        userInfo = new User_Information(document);
                     } else {
                         Log.d(TAG, "No such document");
                     }
                 } else {
                     Log.d(TAG, "get failed with ", task.getException());
                 }
-                TextView textView = (TextView) findViewById(R.id.Greeting);
-                textView.setText("Hello " + name + "!");
+                nextLocation = nextClass(userInfo);
+                System.out.println(nextLocation);
+                TextView textView = findViewById(R.id.Greeting);
+                textView.setText("Hello " + userInfo.AccessFirst() +"!");
             }
         });
         //----------------------------------------------------
+
         setContentView(R.layout.activity_home_screen);
+
         //----------------------------------------------------      Update Personal Information Button
         updatePersonal = findViewById(R.id.UpdatePersonalOption);
         updatePersonal.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 Intent myIntent = new Intent(HomeScreen.this, EditUserActivity.class);
+                myIntent.putExtra("personalData",userInfo);
                 startActivity(myIntent);
             }
         });
         //--------------------------------------------------------------------
+
         // ---------------------------------------------         Update Schedule Information button
         updateSchedule = findViewById(R.id.UpdateScheduleOption);
         updateSchedule.setOnClickListener(new View.OnClickListener() {
@@ -74,5 +87,39 @@ public class HomeScreen extends AppCompatActivity {
                 startActivity(myIntent);
             }
         });
+        // -----------------------------------------------------------
+
+        google_maps =  findViewById(R.id.launch_google_maps);
+        google_maps.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent myIntent;
+                if(nextLocation == "N/A"){
+                    myIntent = new Intent(HomeScreen.this, HomeScreen.class);
+                }
+                else{
+                    myIntent = new Intent(HomeScreen.this, LaunchGoogleMaps.class);
+                    myIntent.putExtra("nextClass",nextLocation);
+                }
+                startActivity(myIntent);
+            }
+        });
+
+        //---------------------------------------------
+    }
+
+    private String nextClass(User_Information user) {
+        List<String> classes = user.AccessClass();
+        SimpleDateFormat simpleDateformat = new SimpleDateFormat("HHmm");
+        int time =Integer.parseInt(simpleDateformat.format(new Date()));
+        String nextClassLocation = "N/A";
+        for (int a = 0; nextClassLocation == "N/A" && a < classes.size(); a++) {
+            int firstDash = classes.get(a).indexOf('-');
+            int classTime = Integer.parseInt(classes.get(a).substring(firstDash + 1, classes.get(a).lastIndexOf('-')));
+            if(time < classTime) {
+                nextClassLocation = classes.get(a).substring(0,firstDash);   
+            }
+        }
+        return nextClassLocation;
     }
 }
