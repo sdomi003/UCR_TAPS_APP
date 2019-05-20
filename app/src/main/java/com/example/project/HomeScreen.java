@@ -118,12 +118,14 @@ public class HomeScreen extends AppCompatActivity {
         List<String> classes = user.AccessClass();
         SimpleDateFormat simpleDateformat = new SimpleDateFormat("HHmm");
         int time =Integer.parseInt(simpleDateformat.format(new Date()));
+        int earliest_time=2400;
         String nextClassLocation = "N/A";
-        for (int a = 0; nextClassLocation == "N/A" && a < classes.size(); a++) {
+        for (int a = 0; a < classes.size(); a++) {
             int firstDash = classes.get(a).indexOf('-');
             int classTime = Integer.parseInt(classes.get(a).substring(firstDash + 1, classes.get(a).lastIndexOf('-')));
-            if(time < classTime) {
-                nextClassLocation = classes.get(a).substring(0,firstDash);   
+            if(time < classTime && classTime < earliest_time) {
+                nextClassLocation = classes.get(a).substring(0,firstDash);
+                earliest_time = classTime;
             }
         }
         return nextClassLocation;
