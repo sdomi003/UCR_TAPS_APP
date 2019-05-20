@@ -52,22 +52,22 @@ public class ScheduleActivity extends AppCompatActivity {
                             TextView textView = (TextView) findViewById(R.id.test);
                             textView.setText(monday.get(0));
                         }
-                        /*if(tuesday.get(0) != "N/A")
+                        if(tuesday.get(0) != "N/A")
                         {
-
+                           TextView textView = (TextView) findViewById(R.id.test);
                         }
                         if(wednesday.get(0) != "N/A")
                         {
-
+                           TextView textView = (TextView) findViewById(R.id.test);
                         }
                         if(thursday.get(0) != "N/A")
                         {
-
+                           TextView textView = (TextView) findViewById(R.id.test);
                         }
                         if(friday.get(0) != "N/A")
                         {
-
-                        }*/
+                           TextView textView = (TextView) findViewById(R.id.test);
+                        }
                     } else {
                         Log.d(TAG, "No such document");
                     }
