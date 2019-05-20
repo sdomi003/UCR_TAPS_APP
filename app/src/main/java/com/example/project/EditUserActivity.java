@@ -9,6 +9,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.firebase.ui.auth.data.model.User;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -50,11 +51,12 @@ public class EditUserActivity extends AppCompatActivity {
         Personal_Update.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent myIntent = new Intent(EditUserActivity.this, EditUserActivity.class);
+                Intent myIntent = new Intent(EditUserActivity.this, HomeScreen.class);
                 userInfo.UpdatePersonal(uid,((EditText)findViewById(R.id.First_Name)).getText().toString(),
                         ((EditText)findViewById(R.id.Last_Name)).getText().toString(),
                         ((EditText)findViewById(R.id.Phone_Number)).getText().toString());
-                myIntent.putExtra("personalData",userInfo);
+                //myIntent.putExtra("personalData",userInfo);
+                Toast.makeText(EditUserActivity.this, "Personal Information Updated", Toast.LENGTH_LONG).show();
                 startActivity(myIntent);
             }
         });

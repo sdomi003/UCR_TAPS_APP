@@ -7,7 +7,9 @@ import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.ListView;
 import android.widget.TextView;
 
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -18,6 +20,7 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -60,6 +63,9 @@ public class HomeScreen extends AppCompatActivity {
                 System.out.println(nextLocation);
                 TextView textView = findViewById(R.id.Greeting);
                 textView.setText("Hello " + userInfo.AccessFirst() +"!");
+                ListView lv = findViewById(R.id.today_classes);
+                ArrayAdapter<String> adapter = new ArrayAdapter<String>(HomeScreen.this,android.R.layout.simple_list_item_1,userInfo.AccessClass());
+                lv.setAdapter(adapter);
             }
         });
         //----------------------------------------------------
