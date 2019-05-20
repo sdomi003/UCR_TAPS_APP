@@ -92,9 +92,14 @@ public class HomeScreen extends AppCompatActivity {
         google_maps.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent myIntent = new Intent(HomeScreen.this, LaunchGoogleMaps.class);
-                myIntent.putExtra("nextClass",nextLocation);
-                System.out.println(nextLocation);
+                Intent myIntent;
+                if(nextLocation == "N/A"){
+                    myIntent = new Intent(HomeScreen.this, HomeScreen.class);
+                }
+                else{
+                    myIntent = new Intent(HomeScreen.this, ScheduleActivity.class);      // CHANGE ACTIVITY DESTINATION
+                    myIntent.putExtra("nextClass",nextLocation);
+                }
                 startActivity(myIntent);
             }
         });
