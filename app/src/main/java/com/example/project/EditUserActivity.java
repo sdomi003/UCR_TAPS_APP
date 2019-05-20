@@ -24,6 +24,7 @@ public class EditUserActivity extends AppCompatActivity {
     private FirebaseAuth Authentication;
     private FirebaseUser user;
     private static final String TAG = "EditUserActivity";
+    private static UserInfo userinfo
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -31,6 +32,7 @@ public class EditUserActivity extends AppCompatActivity {
         Authentication = FirebaseAuth.getInstance();
         user = Authentication.getCurrentUser();
         String uid = user.getUid();
+        userinfo = (UserInfo) getIntent().getSerializableExtra("personalData");
 
 
         DocumentReference docRef = db.collection("User_Information").document(uid);
@@ -41,9 +43,12 @@ public class EditUserActivity extends AppCompatActivity {
                     DocumentSnapshot document = task.getResult();
                     if (document.exists()) {
                         Log.d(TAG, "DocumentSnapshot data: " + document.getData());
-                        TextView textView = (TextView) findViewById(R.id.First_Name);                   //This and next line fetches data from document and puts text into the fields.
-                        textView.setText(document.get("First Name").toString());                        //Fix this so that last name and Phone number are also fetched from data from document
-                                                                                                        // and put into fields
+                        TextView textView = (TextView) findViewById(R.id.First_Name); // first name                  
+                        textView.setText(userInfo.AccessFirst());
+                        TextView textView1 = findViewById(R.id.Last_Name); 
+                        textView1.setText(userInfo.AccessLast());
+                        TextView textView2 = findViewById(R.id.Phone_Number);
+                        textView2.setText(userInfo.AccessPhone());
                     } else {
                         Log.d(TAG, "No such document");
                     }
