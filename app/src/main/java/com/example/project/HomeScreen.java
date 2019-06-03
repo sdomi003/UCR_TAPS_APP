@@ -1,6 +1,7 @@
 package com.example.project;
 
 import android.content.Intent;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.UserHandle;
@@ -111,23 +112,27 @@ public class HomeScreen extends AppCompatActivity {
         google_maps.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                nextLocation = nextClass(userInfo);
+                String lot_to_route_to = "None";
+
                 Intent myIntent;
+
                 if(nextLocation == "N/A"){
                     myIntent = new Intent(HomeScreen.this, HomeScreen.class);
                 }
                 else {
+                    String preferred_lot = userInfo.AccessLot();
                     myIntent = new Intent(HomeScreen.this, LaunchGoogleMaps.class);
                     if (userInfo.AccessLot().equals("None")) {
-                        myIntent.putExtra("nextClass", nextLocation);
-                        startActivity(myIntent);
+
+                        LaunchNearestClass launchNearestClass = new LaunchNearestClass();
+                        launchNearestClass.execute(nextLocation);
                     } else {
-                        //CallParkingLotAPI favParkingLotAPI = new HomeScreen.CallParkingLotAPI();
-                        //favParkingLotAPI.execute(LotToAPI(userInfo.AccessLot()));
-                        //CallParkingLotAPI actualParkingLotAPI = new HomeScreen.CallParkingLotAPI();
-                        //actualParkingLotAPI.execute(LotToAPI(nextLocation));
-                        //if()
-                        myIntent.putExtra("nextClass", nextLocation);
-                        startActivity(myIntent);
+                        // try the preferred lot
+                        String preferred_lot_URL = lot_to_URL(preferred_lot);
+                        TryPreferredLot tryPreferredLot = new TryPreferredLot();
+                        tryPreferredLot.execute(preferred_lot_URL);
+
                     }
                 }
             }
@@ -136,46 +141,73 @@ public class HomeScreen extends AppCompatActivity {
         //---------------------------------------------
     }
 
-    private String nextClass(User_Information user) {
-        List<String> classes = user.AccessClass();
-        SimpleDateFormat simpleDateformat = new SimpleDateFormat("HHmm");
-        int time =Integer.parseInt(simpleDateformat.format(new Date()));
-        if(user.AccessDay().equals("Sunday") || user.AccessDay().equals("Saturday"))
-        {
-            return "N/A";
+    private String lot_to_URL(String preferred_lot) {
+        String r;
+        switch (preferred_lot) {
+            case "Big Springs Structure":
+                // Whatever you want to happen when the first item gets selected
+                r = "https://streetsoncloud.com/parking/rest/occupancy/id/84?callback=myCallback";
+                break;
+            case "Lot 6":
+                // Whatever you want to happen when the second item gets selected
+                r = "https://streetsoncloud.com/parking/rest/occupancy/id/238?callback=myCallback";
+                break;
+            case "Lot 24":
+                // Whatever you want to happen when the thrid item gets selected
+                r = "https://streetsoncloud.com/parking/rest/occupancy/id/243?callback=myCallback";
+                break;
+            case "Lot 26":
+                // Whatever you want to happen when the first item gets selected
+                r = "https://streetsoncloud.com/parking/rest/occupancy/id/80?callback=myCallback";
+                break;
+            case "Lot 30":
+                // Whatever you want to happen when the second item gets selected
+                r = "https://streetsoncloud.com/parking/rest/occupancy/id/82?callback=myCallback";
+                break;
+            case "Lot 32":
+                // Whatever you want to happen when the thrid item gets selected
+                r = "https://streetsoncloud.com/parking/rest/occupancy/id/83?callback=myCallback";
+                break;
+            default:
+                r = "ERROR NO PREFERRED LOT";
         }
-        String nextClassLocation = "N/A";
-        for (int a = 0; nextClassLocation == "N/A" && a < classes.size(); a++) {
-            int firstDash = classes.get(a).indexOf('-');
-            int classTime = Integer.parseInt(classes.get(a).substring(firstDash + 1, classes.get(a).lastIndexOf('-')));
-            if(time < classTime) {
-                nextClassLocation = classes.get(a).substring(0,firstDash);   
-            }
-        }
-        return nextClassLocation;
+        return r;
     }
 
-    //-------------------------------------------------------------------- Copy and Paste of Preferred Lot
-    class CallParkingLotAPI extends AsyncTask<String, Void, String> {
+    class TryPreferredLot extends AsyncTask<String, Void, String> {
         @Override
         protected String doInBackground(String... urls) {
             try {
-                return callURL(urls[0]);
+                String preferred_lot_URL = urls[0];
+                String jsonp = callURL(preferred_lot_URL);
+                JSONObject jsonResult = getJSONObject(jsonp);
+                String spots_available = getSpotsAvailable(jsonResult);
+                return spots_available + " " + preferred_lot_URL;
             } catch (Exception e) {
                 return "";
             }
 
         }
 
-        @Override                               //FIX ME
-        protected void onPostExecute(String jsonp) {
+        @Override
+        protected void onPostExecute(String spots_and_lot) {
+
             try {
-                JSONObject jsonResult = getJSONObject(jsonp);
-                String spots_available = getSpotsAvailable(jsonResult);                     ///FIX ME
+                String strings[] = spots_and_lot.split(" ", 2);
+                String spots_available = strings[0];
+                String next_lot_URL = strings[1];
+                if (Integer.parseInt(spots_available) > 0) {
+                    Intent myIntent = new Intent(HomeScreen.this, LaunchGoogleMaps.class);
+                    myIntent.putExtra("next_lot_URL", next_lot_URL);
+                    startActivity(myIntent);
+                } else {
+                    LaunchNearestClass launchNearestClass = new LaunchNearestClass();
+                    launchNearestClass.execute(nextLocation);
+                }
+
             } catch (Exception e) {
                 // failed
-                Log.d("ERROR GETTING JSONP FRO" +
-                        "M RESULT", e.getMessage());
+                Log.d("ERROR GETTING JSONP FROM RESULT", e.getMessage());
             }
         }
 
@@ -183,19 +215,11 @@ public class HomeScreen extends AppCompatActivity {
             return jsonObject.getString("free_spaces");
         }
 
-      /*  private String AccessSpots() throws JSONException {                             //FIX ME
-
-        }
-*/
         private JSONObject getJSONObject(String jsonp) throws JSONException {
             String json = jsonp_to_json(jsonp);
             JSONObject jsonObject = new JSONObject(json);
             JSONArray jsonResults = jsonObject.getJSONArray("results");
             return jsonResults.getJSONObject(0);
-        }
-
-        private String getLocation(final JSONObject jsonObject) throws JSONException {
-            return jsonObject.getString("location_name");
         }
 
         private String callURL(String myURL) {
@@ -235,38 +259,137 @@ public class HomeScreen extends AppCompatActivity {
         }
     }
 
-    private String LotToAPI(String lot) {
-        switch(lot){
-            case "Big Springs Structure":
-            // Whatever you want to happen when the first item gets selected
-            return "https://streetsoncloud.com/parking/rest/occupancy/id/84?callback=myCallback";
 
-            case "Lot 6":
-            // Whatever you want to happen when the second item gets selected
-            return "https://streetsoncloud.com/parking/rest/occupancy/id/238?callback=myCallback";
+    class LaunchNearestClass extends AsyncTask<String, Void, String> {
+        @Override
+        protected String doInBackground(String... urls) {
+            try {
+                String next_class_loc = urls[0];
+                String closest_URL = getClosestURL(next_class_loc);
+                String jsonp = callURL(closest_URL);
+                JSONObject jsonResult = getJSONObject(jsonp);
+                String spots_available = getSpotsAvailable(jsonResult);
+                if (Integer.parseInt(spots_available) <= 0) {
+                    closest_URL = "https://streetsoncloud.com/parking/rest/occupancy/id/84?callback=myCallback";
+                }
 
-            case "Lot 24":
-            case "Winston Chung Hall":
-            case "Bourns Hall":
-            // Whatever you want to happen when the thrid item gets selected
-            return "https://streetsoncloud.com/parking/rest/occupancy/id/243?callback=myCallback";
-
-            case "Lot 26":
-            // Whatever you want to happen when the first item gets selected
-            return "https://streetsoncloud.com/parking/rest/occupancy/id/80?callback=myCallback";
-
-            case "Lot 30":
-            case "Sproul Hall":
-            case "Watkins Hall":
-            case "Pierce Hall":
-            // Whatever you want to happen when the second item gets selected
-            return "https://streetsoncloud.com/parking/rest/occupancy/id/82?callback=myCallback";
-
-            case "Lot 32":
-            // Whatever you want to happen when the thrid item gets selected
-            return "https://streetsoncloud.com/parking/rest/occupancy/id/83?callback=myCallback";
+                return closest_URL;
+            } catch (Exception e) {
+                return "";
+            }
 
         }
-        return "";
+
+        private String getClosestURL(String next_class_loc) {
+            String r;
+            switch (next_class_loc) {
+                case "Winston Chung Hall":
+                    // Whatever you want to happen when the first item gets selected
+                    r = "https://streetsoncloud.com/parking/rest/occupancy/id/243?callback=myCallback";
+                    break;
+                case "Bourns Hall":
+                    // Whatever you want to happen when the second item gets selected
+                    r = "https://streetsoncloud.com/parking/rest/occupancy/id/243?callback=myCallback";
+                    break;
+                case "Sproul Hall":
+                    // Whatever you want to happen when the thrid item gets selected
+                    r = "https://streetsoncloud.com/parking/rest/occupancy/id/82?callback=myCallback";
+                    break;
+                case "Watkins Hall":
+                    // Whatever you want to happen when the first item gets selected
+                    r = "https://streetsoncloud.com/parking/rest/occupancy/id/82?callback=myCallback";
+                    break;
+                case "Pierce Hall":
+                    // Whatever you want to happen when the second item gets selected
+                    r = "https://streetsoncloud.com/parking/rest/occupancy/id/82?callback=myCallback";
+                    break;
+                default:
+                    r = "";
+                    break;
+            }
+            return r;
+        }
+
+        @Override
+        protected void onPostExecute(String closestURL) {
+
+            try {
+                Intent myIntent = new Intent(HomeScreen.this, LaunchGoogleMaps.class);
+                myIntent.putExtra("next_lot_URL", closestURL);
+                startActivity(myIntent);
+
+            } catch (Exception e) {
+                // failed
+                Log.d("ERROR GETTING JSONP FROM RESULT", e.getMessage());
+            }
+        }
+
+        private String getSpotsAvailable(JSONObject jsonObject) throws JSONException {
+            return jsonObject.getString("free_spaces");
+        }
+
+        private JSONObject getJSONObject(String jsonp) throws JSONException {
+            String json = jsonp_to_json(jsonp);
+            JSONObject jsonObject = new JSONObject(json);
+            JSONArray jsonResults = jsonObject.getJSONArray("results");
+            return jsonResults.getJSONObject(0);
+        }
+
+        private String callURL(String myURL) {
+            System.out.println("Requested URL:" + myURL);
+            StringBuilder sb = new StringBuilder();
+            URLConnection urlConn = null;
+            InputStreamReader in = null;
+            try {
+                URL url = new URL(myURL);
+                urlConn = url.openConnection();
+                if (urlConn != null)
+                    urlConn.setReadTimeout(60 * 1000);
+                if (urlConn != null && urlConn.getInputStream() != null) {
+                    in = new InputStreamReader(urlConn.getInputStream(),
+                            Charset.defaultCharset());
+                    BufferedReader bufferedReader = new BufferedReader(in);
+                    if (bufferedReader != null) {
+                        int cp;
+                        while ((cp = bufferedReader.read()) != -1) {
+                            sb.append((char) cp);
+                        }
+                        bufferedReader.close();
+                    }
+                }
+                in.close();
+            } catch (Exception e) {
+                throw new RuntimeException("Exception while calling URL:" + myURL, e);
+            }
+
+            return sb.toString();
+        }
+
+        private String jsonp_to_json(final String jsonp) {
+            int left = jsonp.indexOf('(') + 1;
+            int right = jsonp.length() - 1;
+            return jsonp.substring(left, right);
+        }
     }
+
+    private String nextClass(User_Information user) {
+        List<String> classes = user.AccessClass();
+        SimpleDateFormat simpleDateformat = new SimpleDateFormat("HHmm");
+        int time =Integer.parseInt(simpleDateformat.format(new Date()));
+        if(user.AccessDay().equals("Sunday") || user.AccessDay().equals("Saturday"))
+        {
+            return "N/A";
+        }
+        String nextClassLocation = "N/A";
+        for (int a = 0; nextClassLocation == "N/A" && a < classes.size(); a++) {
+            int firstDash = classes.get(a).indexOf('-');
+            int classTime = Integer.parseInt(classes.get(a).substring(firstDash + 1, classes.get(a).lastIndexOf('-')));
+            if(time < classTime) {
+                nextClassLocation = classes.get(a).substring(0,firstDash);   
+            }
+        }
+        return nextClassLocation;
+    }
+
+
 }
