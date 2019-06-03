@@ -37,7 +37,13 @@ import java.util.Date;
 import java.util.List;
 
 import static com.google.firebase.auth.FirebaseAuth.getInstance;
-
+import android.app.Activity;
+import android.content.Intent;
+import android.net.Uri;
+import android.os.Bundle;
+import android.widget.Button;
+import android.view.View;
+import android.view.View.OnClickListener;
 public class HomeScreen extends AppCompatActivity {
 
     private FirebaseUser user;
@@ -56,6 +62,8 @@ public class HomeScreen extends AppCompatActivity {
         DocumentReference docRef = db.collection("User_Information").document(uid);
 
         super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_home_screen);
+        addListenerOnButton();
         startService(new Intent(getBaseContext(),MyService.class));
         //------------------------------------------------------
         docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
@@ -395,5 +403,22 @@ public class HomeScreen extends AppCompatActivity {
         return nextClassLocation;
     }
 
+    public void addListenerOnButton() {
+
+        button = (Button) findViewById(R.id.weblink);
+
+        button.setOnClickListener(new OnClickListener() {
+
+            @Override
+            public void onClick(View view) {
+
+                Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://flexport.ucr.edu/ebusiness/Account/Portal"));
+                startActivity(browserIntent);
+
+            }
+
+        });
+
+    }
 
 }
