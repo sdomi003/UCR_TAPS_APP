@@ -87,18 +87,5 @@
         app:layout_constraintTop_toBottomOf="@+id/lot_spinner"
         app:layout_constraintVertical_bias="0.529" />
 
-    <Button
-        android:id="@+id/notifTest"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="148dp"
-        android:layout_marginBottom="8dp"
-        android:text="Notification Test"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="@+id/guest_lot_info_view"
-        app:layout_constraintHorizontal_bias="0.514"
-        app:layout_constraintStart_toStartOf="@+id/guest_lot_info_view"
-        app:layout_constraintTop_toTopOf="@+id/guest_lot_info_view"
-        app:layout_constraintVertical_bias="0.159" />
 
 </android.support.constraint.ConstraintLayout>

@@ -1,6 +1,8 @@
 package com.example.project;
 
 import android.content.Intent;
+import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.UserHandle;
 import android.support.annotation.NonNull;
@@ -20,6 +22,15 @@ import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.net.URL;
+import java.net.URLConnection;
+import java.nio.charset.Charset;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -45,6 +56,7 @@ public class HomeScreen extends AppCompatActivity {
         DocumentReference docRef = db.collection("User_Information").document(uid);
 
         super.onCreate(savedInstanceState);
+        startService(new Intent(getBaseContext(),MyService.class));
         //------------------------------------------------------
         docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
             @Override
@@ -61,12 +73,14 @@ public class HomeScreen extends AppCompatActivity {
                     Log.d(TAG, "get failed with ", task.getException());
                 }
                 nextLocation = nextClass(userInfo);
-                System.out.println(nextLocation);
+                //System.out.println(nextLocation);
                 TextView textView = findViewById(R.id.Greeting);
                 textView.setText("Hello " + userInfo.AccessFirst() +"!");
                 ListView lv = findViewById(R.id.today_classes);
-                ArrayAdapter<String> adapter = new ArrayAdapter<String>(HomeScreen.this,android.R.layout.simple_list_item_1,userInfo.AccessClass());
-                lv.setAdapter(adapter);
+                if(nextLocation != "N/A") {
+                    ArrayAdapter<String> adapter = new ArrayAdapter<String>(HomeScreen.this, android.R.layout.simple_list_item_1, userInfo.AccessClass());
+                    lv.setAdapter(adapter);
+                }
             }
         });
         //----------------------------------------------------
@@ -100,29 +114,264 @@ public class HomeScreen extends AppCompatActivity {
         google_maps.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                nextLocation = nextClass(userInfo);
+                String lot_to_route_to = "None";
+
                 Intent myIntent;
+
                 if(nextLocation == "N/A"){
                     myIntent = new Intent(HomeScreen.this, HomeScreen.class);
                 }
-                else{
+                else {
+                    String preferred_lot = userInfo.AccessLot();
                     myIntent = new Intent(HomeScreen.this, LaunchGoogleMaps.class);
-                    myIntent.putExtra("nextClass",nextLocation);
+                    if (userInfo.AccessLot().equals("None")) {
+
+                        LaunchNearestClass launchNearestClass = new LaunchNearestClass();
+                        launchNearestClass.execute(nextLocation);
+                    } else {
+                        // try the preferred lot
+                        String preferred_lot_URL = lot_to_URL(preferred_lot);
+                        TryPreferredLot tryPreferredLot = new TryPreferredLot();
+                        tryPreferredLot.execute(preferred_lot_URL);
+
+                    }
                 }
-                startActivity(myIntent);
             }
         });
+    }
 
-        //---------------------------------------------
-        /*logout = findViewById(R.id.logout);
-        google_maps.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent myIntent;
-                myIntent = new Intent(HomeScreen.this, MainActivity.class);
-                FirebaseAuth().getInstance().logout();
-                startActivity(myIntent);
+    private String lot_to_URL(String preferred_lot) {
+        String r;
+        switch (preferred_lot) {
+            case "Big Springs Structure":
+                // Whatever you want to happen when the first item gets selected
+                r = "https://streetsoncloud.com/parking/rest/occupancy/id/84?callback=myCallback";
+                break;
+            case "Lot 6":
+                // Whatever you want to happen when the second item gets selected
+                r = "https://streetsoncloud.com/parking/rest/occupancy/id/238?callback=myCallback";
+                break;
+            case "Lot 24":
+                // Whatever you want to happen when the thrid item gets selected
+                r = "https://streetsoncloud.com/parking/rest/occupancy/id/243?callback=myCallback";
+                break;
+            case "Lot 26":
+                // Whatever you want to happen when the first item gets selected
+                r = "https://streetsoncloud.com/parking/rest/occupancy/id/80?callback=myCallback";
+                break;
+            case "Lot 30":
+                // Whatever you want to happen when the second item gets selected
+                r = "https://streetsoncloud.com/parking/rest/occupancy/id/82?callback=myCallback";
+                break;
+            case "Lot 32":
+                // Whatever you want to happen when the thrid item gets selected
+                r = "https://streetsoncloud.com/parking/rest/occupancy/id/83?callback=myCallback";
+                break;
+            default:
+                r = "ERROR NO PREFERRED LOT";
+        }
+        return r;
+    }
+
+    class TryPreferredLot extends AsyncTask<String, Void, String> {
+        @Override
+        protected String doInBackground(String... urls) {
+            try {
+                String preferred_lot_URL = urls[0];
+                String jsonp = callURL(preferred_lot_URL);
+                JSONObject jsonResult = getJSONObject(jsonp);
+                String spots_available = getSpotsAvailable(jsonResult);
+                return spots_available + " " + preferred_lot_URL;
+            } catch (Exception e) {
+                return "";
             }
-        });*/
+
+        }
+
+        @Override
+        protected void onPostExecute(String spots_and_lot) {
+
+            try {
+                String strings[] = spots_and_lot.split(" ", 2);
+                String spots_available = strings[0];
+                String next_lot_URL = strings[1];
+                if (Integer.parseInt(spots_available) > 0) {
+                    Intent myIntent = new Intent(HomeScreen.this, LaunchGoogleMaps.class);
+                    String next_lot_URL_and_preferred_transport = next_lot_URL + " " + userInfo.AccessTransport();
+                    myIntent.putExtra("next_lot_URL_and_preferred_transport", next_lot_URL_and_preferred_transport);
+                    startActivity(myIntent);
+                } else {
+                    LaunchNearestClass launchNearestClass = new LaunchNearestClass();
+                    launchNearestClass.execute(nextLocation);
+                }
+
+            } catch (Exception e) {
+                // failed
+                Log.d("ERROR GETTING JSONP FROM RESULT", e.getMessage());
+            }
+        }
+
+        private String getSpotsAvailable(JSONObject jsonObject) throws JSONException {
+            return jsonObject.getString("free_spaces");
+        }
+
+        private JSONObject getJSONObject(String jsonp) throws JSONException {
+            String json = jsonp_to_json(jsonp);
+            JSONObject jsonObject = new JSONObject(json);
+            JSONArray jsonResults = jsonObject.getJSONArray("results");
+            return jsonResults.getJSONObject(0);
+        }
+
+        private String callURL(String myURL) {
+            System.out.println("Requested URL:" + myURL);
+            StringBuilder sb = new StringBuilder();
+            URLConnection urlConn = null;
+            InputStreamReader in = null;
+            try {
+                URL url = new URL(myURL);
+                urlConn = url.openConnection();
+                if (urlConn != null)
+                    urlConn.setReadTimeout(60 * 1000);
+                if (urlConn != null && urlConn.getInputStream() != null) {
+                    in = new InputStreamReader(urlConn.getInputStream(),
+                            Charset.defaultCharset());
+                    BufferedReader bufferedReader = new BufferedReader(in);
+                    if (bufferedReader != null) {
+                        int cp;
+                        while ((cp = bufferedReader.read()) != -1) {
+                            sb.append((char) cp);
+                        }
+                        bufferedReader.close();
+                    }
+                }
+                in.close();
+            } catch (Exception e) {
+                throw new RuntimeException("Exception while calling URL:" + myURL, e);
+            }
+
+            return sb.toString();
+        }
+
+        private String jsonp_to_json(final String jsonp) {
+            int left = jsonp.indexOf('(') + 1;
+            int right = jsonp.length() - 1;
+            return jsonp.substring(left, right);
+        }
+    }
+
+
+    class LaunchNearestClass extends AsyncTask<String, Void, String> {
+        @Override
+        protected String doInBackground(String... urls) {
+            try {
+                String next_class_loc = urls[0];
+                String closest_URL = getClosestURL(next_class_loc);
+                String jsonp = callURL(closest_URL);
+                JSONObject jsonResult = getJSONObject(jsonp);
+                String spots_available = getSpotsAvailable(jsonResult);
+                if (Integer.parseInt(spots_available) <= 0) {
+                    closest_URL = "https://streetsoncloud.com/parking/rest/occupancy/id/84?callback=myCallback";
+                }
+
+                return closest_URL;
+            } catch (Exception e) {
+                return "";
+            }
+
+        }
+
+        private String getClosestURL(String next_class_loc) {
+            String r;
+            switch (next_class_loc) {
+                case "Winston Chung Hall":
+                    // Whatever you want to happen when the first item gets selected
+                    r = "https://streetsoncloud.com/parking/rest/occupancy/id/243?callback=myCallback";
+                    break;
+                case "Bourns Hall":
+                    // Whatever you want to happen when the second item gets selected
+                    r = "https://streetsoncloud.com/parking/rest/occupancy/id/243?callback=myCallback";
+                    break;
+                case "Sproul Hall":
+                    // Whatever you want to happen when the thrid item gets selected
+                    r = "https://streetsoncloud.com/parking/rest/occupancy/id/82?callback=myCallback";
+                    break;
+                case "Watkins Hall":
+                    // Whatever you want to happen when the first item gets selected
+                    r = "https://streetsoncloud.com/parking/rest/occupancy/id/82?callback=myCallback";
+                    break;
+                case "Pierce Hall":
+                    // Whatever you want to happen when the second item gets selected
+                    r = "https://streetsoncloud.com/parking/rest/occupancy/id/82?callback=myCallback";
+                    break;
+                default:
+                    r = "";
+                    break;
+            }
+            return r;
+        }
+
+        @Override
+        protected void onPostExecute(String closestURL) {
+
+            try {
+                String next_lot_URL_and_preferred_transport = closestURL + " " + userInfo.AccessTransport();
+                Intent myIntent = new Intent(HomeScreen.this, LaunchGoogleMaps.class);
+                myIntent.putExtra("next_lot_URL_and_preferred_transport", next_lot_URL_and_preferred_transport);
+                startActivity(myIntent);
+
+            } catch (Exception e) {
+                // failed
+                Log.d("ERROR GETTING JSONP FROM RESULT", e.getMessage());
+            }
+        }
+
+        private String getSpotsAvailable(JSONObject jsonObject) throws JSONException {
+            return jsonObject.getString("free_spaces");
+        }
+
+        private JSONObject getJSONObject(String jsonp) throws JSONException {
+            String json = jsonp_to_json(jsonp);
+            JSONObject jsonObject = new JSONObject(json);
+            JSONArray jsonResults = jsonObject.getJSONArray("results");
+            return jsonResults.getJSONObject(0);
+        }
+
+        private String callURL(String myURL) {
+            System.out.println("Requested URL:" + myURL);
+            StringBuilder sb = new StringBuilder();
+            URLConnection urlConn = null;
+            InputStreamReader in = null;
+            try {
+                URL url = new URL(myURL);
+                urlConn = url.openConnection();
+                if (urlConn != null)
+                    urlConn.setReadTimeout(60 * 1000);
+                if (urlConn != null && urlConn.getInputStream() != null) {
+                    in = new InputStreamReader(urlConn.getInputStream(),
+                            Charset.defaultCharset());
+                    BufferedReader bufferedReader = new BufferedReader(in);
+                    if (bufferedReader != null) {
+                        int cp;
+                        while ((cp = bufferedReader.read()) != -1) {
+                            sb.append((char) cp);
+                        }
+                        bufferedReader.close();
+                    }
+                }
+                in.close();
+            } catch (Exception e) {
+                throw new RuntimeException("Exception while calling URL:" + myURL, e);
+            }
+
+            return sb.toString();
+        }
+
+        private String jsonp_to_json(final String jsonp) {
+            int left = jsonp.indexOf('(') + 1;
+            int right = jsonp.length() - 1;
+            return jsonp.substring(left, right);
+        }
     }
 
     private String nextClass(User_Information user) {
@@ -130,6 +379,10 @@ public class HomeScreen extends AppCompatActivity {
         SimpleDateFormat simpleDateformat = new SimpleDateFormat("HHmm");
         int time =Integer.parseInt(simpleDateformat.format(new Date()));
         int earliest_time=2400;
+        if(user.AccessDay().equals("Sunday") || user.AccessDay().equals("Saturday"))
+        {
+            return "N/A";
+        }
         String nextClassLocation = "N/A";
         for (int a = 0; a < classes.size(); a++) {
             int firstDash = classes.get(a).indexOf('-');
@@ -141,4 +394,6 @@ public class HomeScreen extends AppCompatActivity {
         }
         return nextClassLocation;
     }
+
+
 }

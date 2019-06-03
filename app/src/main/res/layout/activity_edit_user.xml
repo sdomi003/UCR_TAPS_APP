@@ -11,16 +11,14 @@
         android:layout_width="241dp"
         android:layout_height="31dp"
         android:layout_marginStart="24dp"
-        android:layout_marginTop="147dp"
         android:layout_marginEnd="8dp"
-        android:layout_marginBottom="553dp"
+        android:layout_marginBottom="604dp"
         android:text="Update Personal Information"
         android:textSize="18sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.431"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintHorizontal_bias="0.442"
+        app:layout_constraintStart_toStartOf="parent" />
 
 
     <android.support.design.widget.TextInputLayout
@@ -68,8 +66,6 @@
         android:layout_marginStart="26dp"
         android:layout_marginTop="25dp"
         android:layout_marginEnd="26dp"
-        android:layout_marginBottom="32dp"
-        app:layout_constraintBottom_toTopOf="@+id/button"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
@@ -82,17 +78,72 @@
             android:hint="Phone Number" />
     </android.support.design.widget.TextInputLayout>
 
+    <Spinner
+        android:id="@+id/lot"
+        android:layout_width="357dp"
+        android:layout_height="50dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginEnd="8dp"
+        android:entries="@array/lots"
+        android:prompt="@string/day_prompt"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.473"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textView13" />
+
+    <Spinner
+        android:id="@+id/trans"
+        android:layout_width="357dp"
+        android:layout_height="50dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginEnd="8dp"
+        android:entries="@array/trans"
+        android:prompt="@string/day_prompt"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.473"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textView15" />
+
     <Button
         android:id="@+id/button"
         android:layout_width="79dp"
         android:layout_height="38dp"
         android:layout_marginStart="27dp"
+        android:layout_marginTop="8dp"
         android:layout_marginEnd="296dp"
-        android:layout_marginBottom="232dp"
+        android:layout_marginBottom="108dp"
         android:text="Update"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toStartOf="parent" />
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/trans" />
+
+    <TextView
+        android:id="@+id/textView13"
+        android:layout_width="114dp"
+        android:layout_height="30dp"
+        android:layout_marginStart="26dp"
+        android:layout_marginTop="12dp"
+        android:layout_marginEnd="263dp"
+        android:text="Favorite Lot"
+        android:textSize="20sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.125"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/Text_input_layout_11" />
+
+    <TextView
+        android:id="@+id/textView15"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="27dp"
+        android:layout_marginTop="12dp"
+        android:layout_marginEnd="81dp"
+        android:text="Preferred Mode of Transportation"
+        android:textSize="20sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/lot" />
 
 </android.support.constraint.ConstraintLayout>

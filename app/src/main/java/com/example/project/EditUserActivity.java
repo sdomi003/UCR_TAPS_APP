@@ -6,8 +6,10 @@ import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -46,15 +48,28 @@ public class EditUserActivity extends AppCompatActivity {
         textView1.setText(userInfo.AccessLast());
         TextView textView2 = findViewById(R.id.Phone_Number);
         textView2.setText(userInfo.AccessPhone());
+        Spinner FavLot=findViewById(R.id.lot);
+        ArrayAdapter Adapt= (ArrayAdapter) FavLot.getAdapter();
+        int pos = Adapt.getPosition(userInfo.AccessLot());
+        FavLot.setSelection(pos);
+        Spinner FavTrans=findViewById(R.id.trans);
+        ArrayAdapter Adapt_trans= (ArrayAdapter) FavTrans.getAdapter();
+        int pos_trans = Adapt_trans.getPosition(userInfo.AccessTransport());
+        FavTrans.setSelection(pos_trans);
 
         Personal_Update = findViewById(R.id.button);
         Personal_Update.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 Intent myIntent = new Intent(EditUserActivity.this, HomeScreen.class);
+                Spinner Fav = findViewById(R.id.lot);
+                Spinner Trans = findViewById(R.id.trans);
                 userInfo.UpdatePersonal(uid,((EditText)findViewById(R.id.First_Name)).getText().toString(),
                         ((EditText)findViewById(R.id.Last_Name)).getText().toString(),
-                        ((EditText)findViewById(R.id.Phone_Number)).getText().toString());
+                        ((EditText)findViewById(R.id.Phone_Number)).getText().toString(),
+                        Fav.getSelectedItem().toString(),
+                        Trans.getSelectedItem().toString()
+                        );
                 //myIntent.putExtra("personalData",userInfo);
                 Toast.makeText(EditUserActivity.this, "Personal Information Updated", Toast.LENGTH_LONG).show();
                 startActivity(myIntent);

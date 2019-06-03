@@ -42,4 +42,18 @@
         <item>Thursday</item>
         <item>Friday</item>
     </string-array>
+    <string-array name="lots">
+        <item>None</item>
+        <item>Lot 30</item>
+        <item>Lot 6</item>
+        <item>Lot 24</item>
+        <item>Lot 26</item>
+        <item>Lot 32</item>
+        <item>Big Springs Structure</item>
+    </string-array>
+    <string-array name="trans">
+    <item>Car</item>
+    <item>Bike</item>
+    <item>Walk</item>
+</string-array>
 </resources>
