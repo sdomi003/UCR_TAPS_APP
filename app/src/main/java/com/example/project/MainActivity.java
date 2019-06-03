@@ -12,6 +12,7 @@ import android.os.Bundle;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.NotificationManagerCompat;
 import android.support.v7.app.AppCompatActivity;
+import android.support.annotation.NonNull;
 import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
@@ -19,6 +20,7 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.Spinner;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -30,14 +32,20 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.nio.charset.Charset;
 
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.iid.FirebaseInstanceId;
+import com.google.firebase.iid.InstanceIdResult;
+
 
 public class MainActivity extends AppCompatActivity implements AdapterView.OnItemSelectedListener {
 
     private Button LogSign, NotifTest;
     private Spinner spinner;
-    private NotificationManagerCompat notificationManager;
     private static final String[] paths = {"Big Springs Structure", "Lot 6", "Lot 24", "Lot 26", "Lot 30", "Lot 32"};
     public static final String CHANNEL_1_ID = "channel1";
+    public static final String TAG = "MainActivity";
+    String token;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -72,29 +80,58 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         NotifTest.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v){
-                addNotificationLot30();
+                lotCapacityNotificationHelper(30);
             }
         });
 
+        FirebaseInstanceId.getInstance().getInstanceId()
+                .addOnCompleteListener(new OnCompleteListener<InstanceIdResult>() {
+                    @Override
+                    public void onComplete(@NonNull Task<InstanceIdResult> task) {
+                        if (!task.isSuccessful()) {
+                            Log.w(TAG, "getInstanceId failed", task.getException());
+                            return;
+                        }
+
+                        // Get new Instance ID token
+                        token = task.getResult().getToken();
+
+                        // Log and toast
+                        String msg = getString(R.string.msg_token_fmt, token);
+                        Log.d(TAG, msg);
+                    }
+                });
+
     }
+
+    //------------------------------------------/
+    //----------NOTIFICATION FUNCTIONS----------/
+    //------------------------------------------/
 
     private void createNotificationChannels() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            NotificationChannel channel1 = new NotificationChannel(CHANNEL_1_ID, "Lot 30", NotificationManager.IMPORTANCE_DEFAULT);
-            channel1.setDescription("Show Lot 30 availability");
+            NotificationChannel channel1 = new NotificationChannel(CHANNEL_1_ID, "Lot Service Channel", NotificationManager.IMPORTANCE_DEFAULT);
+            channel1.setDescription("Show Lot availability");
 
             NotificationManager notificationManager = getSystemService(NotificationManager.class);
             notificationManager.createNotificationChannel(channel1);
         }
     }
 
-    private void addNotificationLot30() {
+    //Lot notification helper
+    private void lotCapacityNotificationHelper(int lotNum)
+    {
+        lotCapacityNotification(lotNum);
+    }
+
+    //Main notification button for lot capacity percentage
+    private void lotCapacityNotification(int lot_num) {
 
         //Build notification
         NotificationCompat.Builder builder = new NotificationCompat.Builder(this, CHANNEL_1_ID)
                 .setSmallIcon(R.drawable.ic_notif)
                 .setContentTitle("EasyPark @ UCR")
-                .setContentText("Lot 30 is now 50% free!")
+                .setContentText("Lot" + lot_num + "is now 50% free!")
                 .setPriority(NotificationCompat.PRIORITY_HIGH);
 
         //Create notification intent
@@ -106,6 +143,10 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         NotificationManager manager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
         manager.notify(0, builder.build());
     }
+
+    //------------------------------------------/
+    //--------------DROPDOWN MENU---------------/
+    //------------------------------------------/
 
     @Override
     public void onItemSelected(AdapterView<?> parent, View v, int position, long id) {

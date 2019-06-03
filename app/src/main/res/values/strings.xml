@@ -22,6 +22,8 @@
     <string name="update_button">Update</string>
     <string name="welcome">"Welcome!"</string>
 
+    <string name="msg_token_fmt" translatable="false">InstanceID Token: %s</string>
+
 
 
     <string name="day_prompt">What day is your class?</string>
