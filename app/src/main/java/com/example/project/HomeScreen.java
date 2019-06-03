@@ -54,6 +54,7 @@ public class HomeScreen extends AppCompatActivity {
         DocumentReference docRef = db.collection("User_Information").document(uid);
 
         super.onCreate(savedInstanceState);
+        startService(new Intent(getBaseContext(),MyService.class));
         //------------------------------------------------------
         docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
             @Override
@@ -132,8 +133,6 @@ public class HomeScreen extends AppCompatActivity {
                 }
             }
         });
-
-        //---------------------------------------------
     }
 
     private String nextClass(User_Information user) {

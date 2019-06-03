@@ -87,6 +87,7 @@ public class SignUpActivity extends AppCompatActivity {
         Data.put("Thursday", Arrays.asList());
         Data.put("Friday", Arrays.asList());
         Data.put("Favorite Lot", "None");
+        Data.put("Favorite Transportation", "Car");
 
         db.collection("User_Information").document(UID)
                 .set(Data)

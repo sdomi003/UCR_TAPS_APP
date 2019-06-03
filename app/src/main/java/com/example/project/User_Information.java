@@ -19,6 +19,7 @@ public class User_Information implements Serializable {
     private String LastName;
     private String Phone;
     private String Lot;
+    private String Transport;
 
     private List<String> classes;
 
@@ -33,8 +34,10 @@ public class User_Information implements Serializable {
         LastName = document.get("Last Name").toString();
         Phone = document.get("Phone Number").toString();
         Lot = document.get("Favorite Lot").toString();
+        Transport = document.get("Favorite Transportation").toString();
         classes =  (List<String>)document.get(weekday);
     }
+
 
     public String AccessFirst()
     {
@@ -43,6 +46,10 @@ public class User_Information implements Serializable {
 
     public String AccessDay() {
         return weekday;
+    }
+
+    public String AccessTransport(){
+        return Transport;
     }
 
     public String AccessLast()
@@ -62,19 +69,21 @@ public class User_Information implements Serializable {
 
     public String AccessLot() { return Lot; }
 
-    public String UpdatePersonal(String uid, String first, String last, String phone, String lot){
+    public String UpdatePersonal(String uid, String first, String last, String phone, String lot, String transport){
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         db.collection("User_Information").document(uid)
                 .update(
                         "First Name",first,
                         "Last Name",last,
                         "Phone Number",phone,
-                        "Favorite Lot",lot
+                        "Favorite Lot",lot,
+                        "Favorite Transportation",transport
                 );
         FirstName=first;
         LastName=last;
         Phone=phone;
         Lot=lot;
+        Transport=transport;
 
         return uid;
     }
