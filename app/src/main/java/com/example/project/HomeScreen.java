@@ -14,6 +14,7 @@ import android.widget.TextView;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -29,7 +30,7 @@ import static com.google.firebase.auth.FirebaseAuth.getInstance;
 public class HomeScreen extends AppCompatActivity {
 
     private FirebaseUser user;
-    private Button updatePersonal, updateSchedule,google_maps;
+    private Button updatePersonal, updateSchedule,google_maps,logout;
     private String nextLocation;                                                //0-------------------- test
     private static User_Information userInfo;
 
@@ -112,6 +113,16 @@ public class HomeScreen extends AppCompatActivity {
         });
 
         //---------------------------------------------
+        /*logout = findViewById(R.id.logout);
+        google_maps.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent myIntent;
+                myIntent = new Intent(HomeScreen.this, MainActivity.class);
+                FirebaseAuth().getInstance().logout();
+                startActivity(myIntent);
+            }
+        });*/
     }
 
     private String nextClass(User_Information user) {

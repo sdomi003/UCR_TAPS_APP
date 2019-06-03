@@ -2,6 +2,9 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.example.project">
 
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
@@ -9,7 +12,15 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".Delete_Class"></activity>
+        <service
+            android:name=".Lot_Background_Service"
+            android:exported="false"></service>
+        <service
+            android:name=".Notification_Service"
+            android:enabled="true"
+            android:exported="true"></service>
+
+        <activity android:name=".Delete_Class" />
         <activity android:name=".NewClass" />
         <activity android:name=".ScheduleActivity" />
         <activity android:name=".SignUpActivity" />
