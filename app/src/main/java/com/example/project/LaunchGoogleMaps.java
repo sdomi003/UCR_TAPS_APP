@@ -31,7 +31,9 @@ public class LaunchGoogleMaps extends AppCompatActivity {
                 gmmIntentUri = Uri.parse("google.navigation:q=Parking+Lot+30+Riverside,+CA+92507");
                 break;
             default:
-                gmmIntentUri = Uri.parse("google.navigation:q=Parking+Lot+30+Riverside,+CA+92507");
+                next_class_loc.replace(' ','+');
+                String url= "google.navigation:q=Parking+"+next_class_loc+"+Riverside,+CA+92507";
+                gmmIntentUri = Uri.parse(url);
                 break;
         }
 
@@ -39,4 +41,8 @@ public class LaunchGoogleMaps extends AppCompatActivity {
         mapIntent.setPackage("com.google.android.apps.maps");
         startActivity(mapIntent);
     }
+
+
 }
+
+

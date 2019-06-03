@@ -84,13 +84,17 @@
         android:layout_width="357dp"
         android:layout_height="50dp"
         android:layout_marginStart="8dp"
-        android:layout_marginTop="27dp"
+        android:layout_marginTop="12dp"
         android:layout_marginEnd="8dp"
+        android:layout_marginBottom="8dp"
         android:entries="@array/lots"
         android:prompt="@string/day_prompt"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.473"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/Text_input_layout_11" />
+        app:layout_constraintTop_toBottomOf="@+id/Text_input_layout_11"
+        app:layout_constraintVertical_bias="0.0" />
 
     <Button
         android:id="@+id/button"

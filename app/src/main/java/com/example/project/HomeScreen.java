@@ -1,6 +1,7 @@
 package com.example.project;
 
 import android.content.Intent;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.UserHandle;
 import android.support.annotation.NonNull;
@@ -19,6 +20,15 @@ import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.net.URL;
+import java.net.URLConnection;
+import java.nio.charset.Charset;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -105,11 +115,21 @@ public class HomeScreen extends AppCompatActivity {
                 if(nextLocation == "N/A"){
                     myIntent = new Intent(HomeScreen.this, HomeScreen.class);
                 }
-                else{
+                else {
                     myIntent = new Intent(HomeScreen.this, LaunchGoogleMaps.class);
-                    myIntent.putExtra("nextClass",nextLocation);
+                    if (userInfo.AccessLot().equals("None")) {
+                        myIntent.putExtra("nextClass", nextLocation);
+                        startActivity(myIntent);
+                    } else {
+                        //CallParkingLotAPI favParkingLotAPI = new HomeScreen.CallParkingLotAPI();
+                        //favParkingLotAPI.execute(LotToAPI(userInfo.AccessLot()));
+                        //CallParkingLotAPI actualParkingLotAPI = new HomeScreen.CallParkingLotAPI();
+                        //actualParkingLotAPI.execute(LotToAPI(nextLocation));
+                        //if()
+                        myIntent.putExtra("nextClass", nextLocation);
+                        startActivity(myIntent);
+                    }
                 }
-                startActivity(myIntent);
             }
         });
 
@@ -133,5 +153,120 @@ public class HomeScreen extends AppCompatActivity {
             }
         }
         return nextClassLocation;
+    }
+
+    //-------------------------------------------------------------------- Copy and Paste of Preferred Lot
+    class CallParkingLotAPI extends AsyncTask<String, Void, String> {
+        @Override
+        protected String doInBackground(String... urls) {
+            try {
+                return callURL(urls[0]);
+            } catch (Exception e) {
+                return "";
+            }
+
+        }
+
+        @Override                               //FIX ME
+        protected void onPostExecute(String jsonp) {
+            try {
+                JSONObject jsonResult = getJSONObject(jsonp);
+                String spots_available = getSpotsAvailable(jsonResult);                     ///FIX ME
+            } catch (Exception e) {
+                // failed
+                Log.d("ERROR GETTING JSONP FRO" +
+                        "M RESULT", e.getMessage());
+            }
+        }
+
+        private String getSpotsAvailable(JSONObject jsonObject) throws JSONException {
+            return jsonObject.getString("free_spaces");
+        }
+
+      /*  private String AccessSpots() throws JSONException {                             //FIX ME
+
+        }
+*/
+        private JSONObject getJSONObject(String jsonp) throws JSONException {
+            String json = jsonp_to_json(jsonp);
+            JSONObject jsonObject = new JSONObject(json);
+            JSONArray jsonResults = jsonObject.getJSONArray("results");
+            return jsonResults.getJSONObject(0);
+        }
+
+        private String getLocation(final JSONObject jsonObject) throws JSONException {
+            return jsonObject.getString("location_name");
+        }
+
+        private String callURL(String myURL) {
+            System.out.println("Requested URL:" + myURL);
+            StringBuilder sb = new StringBuilder();
+            URLConnection urlConn = null;
+            InputStreamReader in = null;
+            try {
+                URL url = new URL(myURL);
+                urlConn = url.openConnection();
+                if (urlConn != null)
+                    urlConn.setReadTimeout(60 * 1000);
+                if (urlConn != null && urlConn.getInputStream() != null) {
+                    in = new InputStreamReader(urlConn.getInputStream(),
+                            Charset.defaultCharset());
+                    BufferedReader bufferedReader = new BufferedReader(in);
+                    if (bufferedReader != null) {
+                        int cp;
+                        while ((cp = bufferedReader.read()) != -1) {
+                            sb.append((char) cp);
+                        }
+                        bufferedReader.close();
+                    }
+                }
+                in.close();
+            } catch (Exception e) {
+                throw new RuntimeException("Exception while calling URL:" + myURL, e);
+            }
+
+            return sb.toString();
+        }
+
+        private String jsonp_to_json(final String jsonp) {
+            int left = jsonp.indexOf('(') + 1;
+            int right = jsonp.length() - 1;
+            return jsonp.substring(left, right);
+        }
+    }
+
+    private String LotToAPI(String lot) {
+        switch(lot){
+            case "Big Springs Structure":
+            // Whatever you want to happen when the first item gets selected
+            return "https://streetsoncloud.com/parking/rest/occupancy/id/84?callback=myCallback";
+
+            case "Lot 6":
+            // Whatever you want to happen when the second item gets selected
+            return "https://streetsoncloud.com/parking/rest/occupancy/id/238?callback=myCallback";
+
+            case "Lot 24":
+            case "Winston Chung Hall":
+            case "Bourns Hall":
+            // Whatever you want to happen when the thrid item gets selected
+            return "https://streetsoncloud.com/parking/rest/occupancy/id/243?callback=myCallback";
+
+            case "Lot 26":
+            // Whatever you want to happen when the first item gets selected
+            return "https://streetsoncloud.com/parking/rest/occupancy/id/80?callback=myCallback";
+
+            case "Lot 30":
+            case "Sproul Hall":
+            case "Watkins Hall":
+            case "Pierce Hall":
+            // Whatever you want to happen when the second item gets selected
+            return "https://streetsoncloud.com/parking/rest/occupancy/id/82?callback=myCallback";
+
+            case "Lot 32":
+            // Whatever you want to happen when the thrid item gets selected
+            return "https://streetsoncloud.com/parking/rest/occupancy/id/83?callback=myCallback";
+
+        }
+        return "";
     }
 }
