@@ -67,8 +67,6 @@
         android:layout_marginStart="26dp"
         android:layout_marginTop="25dp"
         android:layout_marginEnd="26dp"
-        android:layout_marginBottom="32dp"
-        app:layout_constraintBottom_toTopOf="@+id/button"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
@@ -81,17 +79,53 @@
             android:hint="Phone Number" />
     </android.support.design.widget.TextInputLayout>
 
+    <Spinner
+        android:id="@+id/lot"
+        android:layout_width="357dp"
+        android:layout_height="50dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="12dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginBottom="8dp"
+        android:entries="@array/lots"
+        android:prompt="@string/day_prompt"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.473"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/Text_input_layout_11"
+        app:layout_constraintVertical_bias="0.071" />
+
     <Button
         android:id="@+id/button"
         android:layout_width="79dp"
         android:layout_height="38dp"
         android:layout_marginStart="27dp"
+        android:layout_marginTop="20dp"
         android:layout_marginEnd="296dp"
-        android:layout_marginBottom="232dp"
+        android:layout_marginBottom="172dp"
         android:text="Update"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toStartOf="parent" />
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/lot"
+        app:layout_constraintVertical_bias="0.0" />
+
+    <TextView
+        android:id="@+id/textView13"
+        android:layout_width="wrap_content"
+        android:layout_height="29dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginBottom="8dp"
+        android:text="Favorite Lot"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.059"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.648" />
 
 </android.support.constraint.ConstraintLayout>

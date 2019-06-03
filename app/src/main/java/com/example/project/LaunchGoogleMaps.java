@@ -6,37 +6,51 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 
 public class LaunchGoogleMaps extends AppCompatActivity {
-    String next_class_loc;
+    String next_class_url;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
         super.onCreate(savedInstanceState);
 
         Uri gmmIntentUri;
-        next_class_loc = getIntent().getStringExtra("nextClass");
-        switch (next_class_loc) {
-            case "Winston Chung Hall":
+        next_class_url = getIntent().getStringExtra("next_lot_URL");
+
+
+        switch (next_class_url) {
+            case "https://streetsoncloud.com/parking/rest/occupancy/id/84?callback=myCallback":
+                // Whatever you want to happen when the first item gets selected
+                gmmIntentUri = Uri.parse("google.navigation:q=Big+Springs+Structure+Riverside,+CA+92507");
+                break;
+            case "https://streetsoncloud.com/parking/rest/occupancy/id/238?callback=myCallback":
+                // Whatever you want to happen when the second item gets selected
+                gmmIntentUri = Uri.parse("google.navigation:q=Parking+Lot+6+Riverside,+CA+92507");
+                break;
+            case "https://streetsoncloud.com/parking/rest/occupancy/id/243?callback=myCallback":
+                // Whatever you want to happen when the thrid item gets selected
                 gmmIntentUri = Uri.parse("google.navigation:q=Parking+Lot+24+Riverside,+CA+92507");
                 break;
-            case "Bourns Hall":
-                gmmIntentUri = Uri.parse("google.navigation:q=Parking+Lot+24+Riverside,+CA+92507");
+            case "https://streetsoncloud.com/parking/rest/occupancy/id/80?callback=myCallback":
+                // Whatever you want to happen when the first item gets selected
+                gmmIntentUri = Uri.parse("google.navigation:q=Parking+Lot+26+Riverside,+CA+92507");
                 break;
-            case "Sproul Hall":
+            case "https://streetsoncloud.com/parking/rest/occupancy/id/82?callback=myCallback":
+                // Whatever you want to happen when the second item gets selected
                 gmmIntentUri = Uri.parse("google.navigation:q=Parking+Lot+30+Riverside,+CA+92507");
                 break;
-            case "Watkins Hall":
-                gmmIntentUri = Uri.parse("google.navigation:q=Parking+Lot+30+Riverside,+CA+92507");
-                break;
-            case "Pierce Hall":
-                gmmIntentUri = Uri.parse("google.navigation:q=Parking+Lot+30+Riverside,+CA+92507");
+            case "https://streetsoncloud.com/parking/rest/occupancy/id/83?callback=myCallback":
+                // Whatever you want to happen when the thrid item gets selected
+                gmmIntentUri = Uri.parse("google.navigation:q=Parking+Lot+32+Riverside,+CA+92507");
                 break;
             default:
                 gmmIntentUri = Uri.parse("google.navigation:q=Parking+Lot+30+Riverside,+CA+92507");
-                break;
-        }
 
+        }
         Intent mapIntent = new Intent(Intent.ACTION_VIEW, gmmIntentUri);
         mapIntent.setPackage("com.google.android.apps.maps");
         startActivity(mapIntent);
     }
+
+
 }
+
+
