@@ -10,6 +10,7 @@ import android.content.Context;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.PowerManager;
+import android.os.SystemClock;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 
@@ -56,19 +57,11 @@ public class Lot_Background_Service extends IntentService {
     }
 
     @Override
-    protected void onHandleIntent(Intent intent) {
+    public void onHandleIntent(Intent intent) {
 
         //Search parking lot API
         Log.d(TAG, "findLotSize");
-        findLotSize(5);
-
-//        Log.d(TAG, "Change lot size to int");
-//        intLotSize = Integer.valueOf(lotSpotsAvail);
-//        Log.d(TAG, "intLotSize: " + intLotSize);
-//
-//        if (intLotSize > 0) {
-//            lotCapacityNotification();
-//        }
+        findLotSize(0);
 
     }
 
@@ -160,7 +153,7 @@ public class Lot_Background_Service extends IntentService {
         NotificationCompat.Builder builder = new NotificationCompat.Builder(this, CHANNEL_1_ID)
                 .setSmallIcon(R.drawable.ic_notif)
                 .setContentTitle("EasyPark @ UCR")
-                .setContentText(lotName + " is now 35% free, with " + intLotSize + " spaces available!")
+                .setContentText(lotName + " is now 25% free, with " + intLotSize + " spaces available!")
                 .setPriority(NotificationCompat.PRIORITY_HIGH);
 
         //Create notification intent
@@ -198,7 +191,7 @@ public class Lot_Background_Service extends IntentService {
 
                 returnLotInfo(spots_available, location);
                 intLotSize = Integer.valueOf(lotSpotsAvail);
-                double percentFree = FindLotMaxCapacity(location) * 0.65;
+                double percentFree = FindLotMaxCapacity(location) * 0.30;
 
                 if (intLotSize > percentFree) {
                     lotCapacityNotification();
