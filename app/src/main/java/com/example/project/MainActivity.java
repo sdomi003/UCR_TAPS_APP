@@ -1,16 +1,8 @@
 package com.example.project;
 
-import android.app.Notification;
-import android.app.NotificationChannel;
-import android.app.NotificationManager;
-import android.app.PendingIntent;
-import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
-import android.os.Build;
 import android.os.Bundle;
-import android.support.v4.app.NotificationCompat;
-import android.support.v4.app.NotificationManagerCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.annotation.NonNull;
 import android.util.Log;
@@ -20,7 +12,6 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.Spinner;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -40,19 +31,22 @@ import com.google.firebase.iid.InstanceIdResult;
 
 public class MainActivity extends AppCompatActivity implements AdapterView.OnItemSelectedListener {
 
-    private Button LogSign, NotifTest;
+    private Button LogSign;
     private Spinner spinner;
     private static final String[] paths = {"Big Springs Structure", "Lot 6", "Lot 24", "Lot 26", "Lot 30", "Lot 32"};
     public static final String CHANNEL_1_ID = "channel1";
     public static final String TAG = "MainActivity";
-    String token;
+    private String token, lotFreeSpace;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        createNotificationChannels();
+        //Start notification service
+        Log.d(TAG, "Initiate new intent");
+        Intent serviceIntent = new Intent(this, Lot_Background_Service.class);
+        startService(serviceIntent);
 
         LogSign = findViewById(R.id.Log_Sign_Button);
         LogSign.setOnClickListener(new View.OnClickListener() {
@@ -76,14 +70,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         spinner.setAdapter(adapter);
         spinner.setOnItemSelectedListener(this);
 
-        NotifTest = findViewById(R.id.notifTest);
-        NotifTest.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v){
-                lotCapacityNotificationHelper(30);
-            }
-        });
-
+        //Rip we never needed this but oh well
         FirebaseInstanceId.getInstance().getInstanceId()
                 .addOnCompleteListener(new OnCompleteListener<InstanceIdResult>() {
                     @Override
@@ -102,46 +89,6 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                     }
                 });
 
-    }
-
-    //------------------------------------------/
-    //----------NOTIFICATION FUNCTIONS----------/
-    //------------------------------------------/
-
-    private void createNotificationChannels() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            NotificationChannel channel1 = new NotificationChannel(CHANNEL_1_ID, "Lot Service Channel", NotificationManager.IMPORTANCE_DEFAULT);
-            channel1.setDescription("Show Lot availability");
-
-            NotificationManager notificationManager = getSystemService(NotificationManager.class);
-            notificationManager.createNotificationChannel(channel1);
-        }
-    }
-
-    //Lot notification helper
-    private void lotCapacityNotificationHelper(int lotNum)
-    {
-        lotCapacityNotification(lotNum);
-    }
-
-    //Main notification button for lot capacity percentage
-    private void lotCapacityNotification(int lot_num) {
-
-        //Build notification
-        NotificationCompat.Builder builder = new NotificationCompat.Builder(this, CHANNEL_1_ID)
-                .setSmallIcon(R.drawable.ic_notif)
-                .setContentTitle("EasyPark @ UCR")
-                .setContentText("Lot" + lot_num + "is now 50% free!")
-                .setPriority(NotificationCompat.PRIORITY_HIGH);
-
-        //Create notification intent
-        Intent intent = new Intent(this, MainActivity.class);
-        PendingIntent contentIntent = PendingIntent.getActivity(this, 0, intent, 0);
-        builder.setContentIntent(contentIntent);
-
-        //Add as notification
-        NotificationManager manager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-        manager.notify(0, builder.build());
     }
 
     //------------------------------------------/
