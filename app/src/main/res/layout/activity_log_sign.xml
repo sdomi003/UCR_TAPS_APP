@@ -10,16 +10,13 @@
 
     <Button
         android:id="@+id/LogIn"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
+        android:layout_width="125dp"
+        android:layout_height="42dp"
+        android:layout_marginStart="60dp"
         android:layout_marginTop="92dp"
-        android:layout_marginEnd="8dp"
-        android:layout_marginBottom="198dp"
+        android:layout_marginBottom="188dp"
         android:text="@string/login_button"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.498"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/password" />
 
@@ -44,16 +41,18 @@
         android:layout_width="330dp"
         android:layout_height="57dp"
         android:layout_marginStart="24dp"
-        android:layout_marginTop="336dp"
+        android:layout_marginTop="352dp"
         android:layout_marginEnd="24dp"
+        android:layout_marginBottom="322dp"
         android:autofillHints="@string/prompt_password"
         android:hint="@string/prompt_password"
         android:imeActionLabel="@string/action_sign_in_short"
         android:imeOptions="actionDone"
         android:inputType="textPassword"
         android:selectAllOnFocus="true"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.151"
+        app:layout_constraintHorizontal_bias="0.272"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
@@ -62,19 +61,18 @@
         android:layout_width="330dp"
         android:layout_height="59dp"
         android:layout_marginStart="24dp"
-        android:layout_marginTop="260dp"
+        android:layout_marginTop="252dp"
         android:layout_marginEnd="24dp"
-        android:layout_marginBottom="8dp"
+        android:layout_marginBottom="25dp"
         android:autofillHints="@string/prompt_email"
         android:hint="@string/prompt_email"
         android:inputType="textEmailAddress"
         android:selectAllOnFocus="true"
         app:layout_constraintBottom_toTopOf="@+id/password"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.151"
+        app:layout_constraintHorizontal_bias="0.272"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.103" />
+        app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
         android:id="@+id/textView7"
@@ -101,5 +99,20 @@
         app:layout_constraintBottom_toTopOf="@+id/email"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/textView7" />
+
+    <Button
+        android:id="@+id/Google_Sign"
+        android:layout_width="133dp"
+        android:layout_height="42dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="92dp"
+        android:layout_marginEnd="65dp"
+        android:layout_marginBottom="188dp"
+        android:text="Google SignIn"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintStart_toEndOf="@+id/LogIn"
+        app:layout_constraintTop_toBottomOf="@+id/password" />
 
 </android.support.constraint.ConstraintLayout>
