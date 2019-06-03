@@ -55,6 +55,7 @@ public class HomeScreen extends AppCompatActivity {
         DocumentReference docRef = db.collection("User_Information").document(uid);
 
         super.onCreate(savedInstanceState);
+        startService(new Intent(getBaseContext(),MyService.class));
         //------------------------------------------------------
         docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
             @Override
@@ -137,8 +138,6 @@ public class HomeScreen extends AppCompatActivity {
                 }
             }
         });
-
-        //---------------------------------------------
     }
 
     private String lot_to_URL(String preferred_lot) {
@@ -198,7 +197,8 @@ public class HomeScreen extends AppCompatActivity {
                 String next_lot_URL = strings[1];
                 if (Integer.parseInt(spots_available) > 0) {
                     Intent myIntent = new Intent(HomeScreen.this, LaunchGoogleMaps.class);
-                    myIntent.putExtra("next_lot_URL", next_lot_URL);
+                    String next_lot_URL_and_preferred_transport = next_lot_URL + " " + userInfo.AccessTransport();
+                    myIntent.putExtra("next_lot_URL_and_preferred_transport", next_lot_URL_and_preferred_transport);
                     startActivity(myIntent);
                 } else {
                     LaunchNearestClass launchNearestClass = new LaunchNearestClass();
@@ -314,8 +314,9 @@ public class HomeScreen extends AppCompatActivity {
         protected void onPostExecute(String closestURL) {
 
             try {
+                String next_lot_URL_and_preferred_transport = closestURL + " " + userInfo.AccessTransport();
                 Intent myIntent = new Intent(HomeScreen.this, LaunchGoogleMaps.class);
-                myIntent.putExtra("next_lot_URL", closestURL);
+                myIntent.putExtra("next_lot_URL_and_preferred_transport", next_lot_URL_and_preferred_transport);
                 startActivity(myIntent);
 
             } catch (Exception e) {

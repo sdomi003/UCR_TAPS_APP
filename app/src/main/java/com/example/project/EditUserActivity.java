@@ -52,6 +52,10 @@ public class EditUserActivity extends AppCompatActivity {
         ArrayAdapter Adapt= (ArrayAdapter) FavLot.getAdapter();
         int pos = Adapt.getPosition(userInfo.AccessLot());
         FavLot.setSelection(pos);
+        Spinner FavTrans=findViewById(R.id.trans);
+        ArrayAdapter Adapt_trans= (ArrayAdapter) FavTrans.getAdapter();
+        int pos_trans = Adapt_trans.getPosition(userInfo.AccessTransport());
+        FavTrans.setSelection(pos_trans);
 
         Personal_Update = findViewById(R.id.button);
         Personal_Update.setOnClickListener(new View.OnClickListener() {
@@ -59,10 +63,13 @@ public class EditUserActivity extends AppCompatActivity {
             public void onClick(View view) {
                 Intent myIntent = new Intent(EditUserActivity.this, HomeScreen.class);
                 Spinner Fav = findViewById(R.id.lot);
+                Spinner Trans = findViewById(R.id.trans);
                 userInfo.UpdatePersonal(uid,((EditText)findViewById(R.id.First_Name)).getText().toString(),
                         ((EditText)findViewById(R.id.Last_Name)).getText().toString(),
                         ((EditText)findViewById(R.id.Phone_Number)).getText().toString(),
-                        Fav.getSelectedItem().toString());
+                        Fav.getSelectedItem().toString(),
+                        Trans.getSelectedItem().toString()
+                        );
                 //myIntent.putExtra("personalData",userInfo);
                 Toast.makeText(EditUserActivity.this, "Personal Information Updated", Toast.LENGTH_LONG).show();
                 startActivity(myIntent);
