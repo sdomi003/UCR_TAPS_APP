@@ -13,8 +13,12 @@ import android.widget.Button;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import com.google.android.gms.auth.api.signin.GoogleSignIn;
+import com.google.android.gms.auth.api.signin.GoogleSignInClient;
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
@@ -39,8 +43,8 @@ import static com.google.firebase.auth.FirebaseAuth.getInstance;
 public class HomeScreen extends AppCompatActivity {
 
     private FirebaseUser user;
-    private Button updatePersonal, updateSchedule,google_maps;
-    private String nextLocation;                                                //0-------------------- test
+    private Button updatePersonal, updateSchedule,google_maps,log;
+    private String nextLocation;
     private static User_Information userInfo;
 
     private static final String TAG = "User";
@@ -51,7 +55,7 @@ public class HomeScreen extends AppCompatActivity {
         user = getInstance().getCurrentUser();
         String uid = user.getUid();
 
-        DocumentReference docRef = db.collection("User_Information").document(uid);
+        DocumentReference docRef = db.collection("User_Information").document(uid);            //CRASH
 
         super.onCreate(savedInstanceState);
         startService(new Intent(getBaseContext(),MyService.class));
@@ -133,6 +137,16 @@ public class HomeScreen extends AppCompatActivity {
                 }
             }
         });
+
+        log = findViewById(R.id.log);
+        log.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View view){
+                signOut();
+                Intent myIntent = new Intent(HomeScreen.this,MainActivity.class);
+                startActivity(myIntent);
+            }
+        });
     }
 
     private String nextClass(User_Information user) {
@@ -148,7 +162,7 @@ public class HomeScreen extends AppCompatActivity {
             int firstDash = classes.get(a).indexOf('-');
             int classTime = Integer.parseInt(classes.get(a).substring(firstDash + 1, classes.get(a).lastIndexOf('-')));
             if(time < classTime) {
-                nextClassLocation = classes.get(a).substring(0,firstDash);   
+                nextClassLocation = classes.get(a).substring(0,firstDash);
             }
         }
         return nextClassLocation;
@@ -267,5 +281,20 @@ public class HomeScreen extends AppCompatActivity {
 
         }
         return "";
+    }
+
+    private void signOut() {
+        GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+                .requestIdToken(getString(R.string.server_client_id))
+                .requestEmail()
+                .build();
+        GoogleSignInClient mGoogleSignInClient = GoogleSignIn.getClient(this,gso);
+        mGoogleSignInClient.signOut()
+                .addOnCompleteListener(this, new OnCompleteListener<Void>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Void> task) {
+                        // ...
+                    }
+                });
     }
 }
