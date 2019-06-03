@@ -60,12 +60,14 @@ public class HomeScreen extends AppCompatActivity {
                     Log.d(TAG, "get failed with ", task.getException());
                 }
                 nextLocation = nextClass(userInfo);
-                System.out.println(nextLocation);
+                //System.out.println(nextLocation);
                 TextView textView = findViewById(R.id.Greeting);
                 textView.setText("Hello " + userInfo.AccessFirst() +"!");
                 ListView lv = findViewById(R.id.today_classes);
-                ArrayAdapter<String> adapter = new ArrayAdapter<String>(HomeScreen.this,android.R.layout.simple_list_item_1,userInfo.AccessClass());
-                lv.setAdapter(adapter);
+                if(nextLocation != "N/A") {
+                    ArrayAdapter<String> adapter = new ArrayAdapter<String>(HomeScreen.this, android.R.layout.simple_list_item_1, userInfo.AccessClass());
+                    lv.setAdapter(adapter);
+                }
             }
         });
         //----------------------------------------------------
@@ -118,6 +120,10 @@ public class HomeScreen extends AppCompatActivity {
         List<String> classes = user.AccessClass();
         SimpleDateFormat simpleDateformat = new SimpleDateFormat("HHmm");
         int time =Integer.parseInt(simpleDateformat.format(new Date()));
+        if(user.AccessDay().equals("Sunday") || user.AccessDay().equals("Saturday"))
+        {
+            return "N/A";
+        }
         String nextClassLocation = "N/A";
         for (int a = 0; nextClassLocation == "N/A" && a < classes.size(); a++) {
             int firstDash = classes.get(a).indexOf('-');

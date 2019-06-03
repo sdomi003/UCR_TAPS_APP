@@ -17,7 +17,9 @@ import java.util.List;
 public class User_Information implements Serializable {
     private String FirstName;
     private String LastName;
-    public String Phone;
+    private String Phone;
+    private String Lot;
+
     private List<String> classes;
 
     private String weekday;
@@ -27,10 +29,11 @@ public class User_Information implements Serializable {
     {
         SimpleDateFormat simpleDateformat = new SimpleDateFormat("EEEE");
         weekday = simpleDateformat.format(new Date());
-                        FirstName = document.get("First Name").toString();
-                        LastName = document.get("Last Name").toString();
-                        Phone = document.get("Phone Number").toString();
-                        classes =  (List<String>)document.get(weekday);
+        FirstName = document.get("First Name").toString();
+        LastName = document.get("Last Name").toString();
+        Phone = document.get("Phone Number").toString();
+        Lot = document.get("Favorite Lot").toString();
+        classes =  (List<String>)document.get(weekday);
     }
 
     public String AccessFirst()
@@ -38,10 +41,10 @@ public class User_Information implements Serializable {
         return FirstName;
     }
 
-    public String AccessWeek()
-    {
+    public String AccessDay() {
         return weekday;
     }
+
     public String AccessLast()
     {
         return LastName;
@@ -57,17 +60,22 @@ public class User_Information implements Serializable {
         return Phone;
     }
 
-    public String UpdatePersonal(String uid, String first, String last, String phone){
+    public String AccessLot() { return Lot; }
+
+    public String UpdatePersonal(String uid, String first, String last, String phone, String lot){
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         db.collection("User_Information").document(uid)
                 .update(
                         "First Name",first,
                         "Last Name",last,
-                        "Phone Number",phone
+                        "Phone Number",phone,
+                        "Favorite Lot",lot
                 );
         FirstName=first;
         LastName=last;
         Phone=phone;
+        Lot=lot;
+
         return uid;
     }
 }
