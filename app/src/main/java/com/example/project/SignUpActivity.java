@@ -81,7 +81,7 @@ public class SignUpActivity extends AppCompatActivity {
         Data.put("First Name", "");
         Data.put("Last Name", "");
         Data.put("Phone Number", "");
-        Data.put("Monday", Arrays.asList("Winston Chung Hall-15:00-CS180"));
+        Data.put("Monday", Arrays.asList("Winston Chung Hall-1500-CS180"));
         Data.put("Tuesday", Arrays.asList());
         Data.put("Wednesday", Arrays.asList());
         Data.put("Thursday", Arrays.asList());
