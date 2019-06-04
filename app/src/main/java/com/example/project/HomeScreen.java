@@ -64,13 +64,9 @@ public class HomeScreen extends AppCompatActivity {
 
         DocumentReference docRef = db.collection("User_Information").document(uid);
 
-        //Start notification service
+        //Start notification service pt 1
         Log.d(TAG, "Initiate new intent");
         serviceIntent = new Intent(this, Lot_Service.class);
-        Lot_Service lotService = new Lot_Service();
-        if (!isMyServiceRunning(lotService.getClass())) {
-            startService(serviceIntent);
-        }
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home_screen);
@@ -85,6 +81,15 @@ public class HomeScreen extends AppCompatActivity {
                     if (document.exists()) {
                         Log.d(TAG, "DocumentSnapshot data: " + document.getData());
                         userInfo = new User_Information(document);
+
+                        String favLot = userInfo.AccessLot(); //Pass user's favorite lot
+                        serviceIntent.putExtra("Favorite Lot", favLot);
+                        Log.d(TAG, "HomeScreen favLot: " + favLot);
+
+                        Lot_Service lotService = new Lot_Service(); //Start notification service pt 2
+                        if (!isMyServiceRunning(lotService.getClass())) {
+                            startService(serviceIntent);
+                        }
                     } else {
                         Log.d(TAG, "No such document");
                     }

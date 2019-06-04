@@ -38,6 +38,7 @@ public class Lot_Service extends Service {
     private String lotSpotsAvail = "0";
     private int intLotSize;
     private String lotName = "";
+    private String favLot = "";
 
     public Lot_Service() {
     }
@@ -45,7 +46,7 @@ public class Lot_Service extends Service {
     @Nullable
     @Override
     public IBinder onBind(Intent intent) {
-        // TODO: Return the communication channel to the service.
+        // TODO: Return the communication channel to the service
         return null;
     }
 
@@ -54,17 +55,20 @@ public class Lot_Service extends Service {
         Log.d(TAG, "onCreate");
         super.onCreate();
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            startForegroundHelper();
-        }
-        else
-            startForeground(1, new Notification());
     }
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startID) {
         Log.d(TAG, "onStartCommand");
         super.onStartCommand(intent, flags, startID);
+        favLot = intent.getStringExtra("Favorite Lot");
+        Log.d(TAG, "favLot: " + favLot);
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            startForegroundHelper();
+        }
+        else
+            startForeground(1, new Notification());
         startTimer();
 
         return START_STICKY;
@@ -80,41 +84,40 @@ public class Lot_Service extends Service {
         stoptimertask();
     }
 
-    private void findLotSize(int result)
-    {
-        Lot_Service.GetLotInfoAPI getLotInfoAPI = new Lot_Service.GetLotInfoAPI();
-        String r = "";
-
-        //List of lots to choose from
-        if(result == 0)
-            r = "https://streetsoncloud.com/parking/rest/occupancy/id/84?callback=myCallback";
-        else
-            if(result == 1)
-                r = "https://streetsoncloud.com/parking/rest/occupancy/id/238?callback=myCallback";
-            else
-                if(result == 2)
-                    r = "https://streetsoncloud.com/parking/rest/occupancy/id/243?callback=myCallback";
-                else
-                    if(result == 3)
-                        r = "https://streetsoncloud.com/parking/rest/occupancy/id/80?callback=myCallback";
-                    else
-                        if(result == 4)
-                            r = "https://streetsoncloud.com/parking/rest/occupancy/id/82?callback=myCallback";
-                        else
-                            if(result == 5)
-                                r = "https://streetsoncloud.com/parking/rest/occupancy/id/83?callback=myCallback";
-
-
-        getLotInfoAPI.execute(r);
-    }
-
     //MAIN FUNCTION FOR GETTING A LOT NOTIFICATION
     private void runLotProgram()
     {
         notifManager = (NotificationManager)getSystemService(NOTIFICATION_SERVICE);
         //Search parking lot API
         Log.d(TAG, "findLotSize");
-        findLotSize(0);
+        findLotSize(favLot); //Get notifications for user's favorite lot
+    }
+
+    private void findLotSize(String result)
+    {
+        Lot_Service.GetLotInfoAPI getLotInfoAPI = new Lot_Service.GetLotInfoAPI();
+        String r = "";
+
+        if(result.equals("Big Springs Structure"))
+            r = "https://streetsoncloud.com/parking/rest/occupancy/id/84?callback=myCallback";
+        else
+            if(result.equals("Lot 6") )
+                r = "https://streetsoncloud.com/parking/rest/occupancy/id/238?callback=myCallback";
+            else
+                if(result.equals("LOT 24"))
+                    r = "https://streetsoncloud.com/parking/rest/occupancy/id/243?callback=myCallback";
+                else
+                    if(result.equals("Lot 26"))
+                        r = "https://streetsoncloud.com/parking/rest/occupancy/id/80?callback=myCallback";
+                    else
+                        if(result.equals("Lot 30"))
+                            r = "https://streetsoncloud.com/parking/rest/occupancy/id/82?callback=myCallback";
+                        else
+                            if(result.equals("Lot 32"))
+                                r = "https://streetsoncloud.com/parking/rest/occupancy/id/83?callback=myCallback";
+
+
+        getLotInfoAPI.execute(r);
     }
 
     //Helper function that sets selectedLot from GetLotInfoAPI class
@@ -128,17 +131,23 @@ public class Lot_Service extends Service {
     //Used for getting the maximum lot capacity
     private int FindLotMaxCapacity(String toCheck)
     {
-        if(toCheck.equals("Lot 30"))
-            return 2188;
-        else
-        if(toCheck.equals("Lot 6") )
-            return 328;
-        else
-        if(toCheck.equals("LOT 24"))
-            return 387;
-        else
         if(toCheck.equals("Big Springs Structure"))
             return 559;
+        else
+            if(toCheck.equals("Lot 6") )
+                return 328;
+            else
+                if(toCheck.equals("LOT 24"))
+                    return 387;
+                else
+                    if(toCheck.equals("Lot 26"))
+                        return 438;
+                    else
+                        if(toCheck.equals("Lot 30"))
+                            return 2188;
+                        else
+                            if(toCheck.equals("Lot 32"))
+                                return 258;
 
 
         return 0;
