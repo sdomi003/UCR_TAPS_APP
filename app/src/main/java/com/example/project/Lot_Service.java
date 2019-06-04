@@ -108,6 +108,7 @@ public class Lot_Service extends Service {
         getLotInfoAPI.execute(r);
     }
 
+    //MAIN FUNCTION FOR GETTING A LOT NOTIFICATION
     private void runLotProgram()
     {
         notifManager = (NotificationManager)getSystemService(NOTIFICATION_SERVICE);
@@ -151,6 +152,7 @@ public class Lot_Service extends Service {
     private Timer timer;
     private TimerTask timerTask;
     long oldTime=0;
+
     public void startTimer() {
         //set a new Timer
         timer = new Timer();
@@ -159,13 +161,19 @@ public class Lot_Service extends Service {
         initializeTimerTask();
 
         //schedule the timer, to wake up every 1 second
-        timer.schedule(timerTask, 1000, 1000); //
+        timer.schedule(timerTask, 1000, 1000);
+
     }
 
     public void initializeTimerTask() {
         timerTask = new TimerTask() {
             public void run() {
                 Log.i("in timer", "in timer ++++  "+ (counter++));
+
+                if(counter % 300 == 0) //5 minutes = 300 seconds, use 10 for testing purposes
+                {
+                    runLotProgram();
+                }
             }
         };
     }
@@ -244,20 +252,20 @@ public class Lot_Service extends Service {
                 intLotSize = Integer.valueOf(lotSpotsAvail);
                 double percentFree = FindLotMaxCapacity(location) * 0.30;
 
-                //Test
-                if(intLotSize >= percentFree)
-                    lotCapacityNotification();
-
-
-//                if((intLotSize >= percentFree) && !hasCapacity) { //If the parking lot gains capacity, switch hasCapacity to true and send a notification
-//                    hasCapacity = true;
+//                //For testing purposes only
+//                if(intLotSize >= percentFree)
 //                    lotCapacityNotification();
-//                }
-//                else
-//                    if ((intLotSize < percentFree) && hasCapacity) { //If the parking lot loses capacity, switch hasCapacity to false
-//
-//                        hasCapacity = false;
-//                    } //Do not send a notification again (set boolean hasCapacity
+
+
+                if((intLotSize >= percentFree) && !hasCapacity) { //If the parking lot gains capacity, switch hasCapacity to true and send a notification
+                    hasCapacity = true;
+                    lotCapacityNotification();
+                }
+                else
+                    if ((intLotSize < percentFree) && hasCapacity) { //If the parking lot loses capacity, switch hasCapacity to false
+
+                        hasCapacity = false;
+                    } //Do not send a notification again (set boolean hasCapacity
             }
             catch (Exception e)
             {
