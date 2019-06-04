@@ -13,12 +13,19 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <service
-            android:name=".Lot_Background_Service"
-            android:exported="false"></service>
+            android:name=".Lot_Service"
+            android:enabled="true"
+            android:exported="true"></service>
         <service
             android:name=".Notification_Service"
             android:enabled="true"
-            android:exported="true"></service>
+            android:exported="true" />
+        <receiver
+            android:name="SensorRestarterBroadcastReceiver"
+            android:enabled="true"
+            android:exported="true"
+            android:label="RestartServiceWhenStopped">
+        </receiver>
 
         <activity android:name=".Delete_Class" />
         <activity android:name=".NewClass" />
@@ -35,7 +42,8 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <service android:name=".MyService"/>
+
+        <service android:name=".MyService" />
     </application>
 
 </manifest>

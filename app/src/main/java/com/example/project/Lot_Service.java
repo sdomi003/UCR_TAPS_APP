@@ -1,16 +1,15 @@
 package com.example.project;
 
-import android.app.IntentService;
 import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
-import android.content.Intent;
+import android.app.Service;
 import android.content.Context;
+import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Build;
-import android.os.PowerManager;
-import android.os.SystemClock;
+import android.os.IBinder;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 
@@ -23,31 +22,37 @@ import java.io.InputStreamReader;
 import java.net.URL;
 import java.net.URLConnection;
 import java.nio.charset.Charset;
-import java.lang.String;
+
+import java.util.Timer;
+import java.util.TimerTask;
+
+import javax.annotation.Nullable;
 
 
-public class Lot_Background_Service extends IntentService {
-    private static final String TAG = "Lot_Background_Service";
+public class Lot_Service extends Service {
+    private static final String TAG = "Lot_Service";
     public static final String CHANNEL_1_ID = "channel1";
-    private PowerManager.WakeLock wakeLock;
+    public int counter = 0;
+    public boolean hasCapacity = false;
+    protected NotificationManager notifManager;
     private String lotSpotsAvail = "0";
     private int intLotSize;
     private String lotName = "";
 
-    public Lot_Background_Service() {
-        super(TAG);
-        setIntentRedelivery(true);
+    public Lot_Service() {
+    }
+
+    @Nullable
+    @Override
+    public IBinder onBind(Intent intent) {
+        // TODO: Return the communication channel to the service.
+        return null;
     }
 
     @Override
     public void onCreate() {
-        super.onCreate();
         Log.d(TAG, "onCreate");
-
-        PowerManager powerManager = (PowerManager) getSystemService(POWER_SERVICE);
-        wakeLock = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "ExampleApp:WakeLock");
-        wakeLock.acquire(6000000);
-        Log.d(TAG, "wakelock acquired");
+        super.onCreate();
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             startForegroundHelper();
@@ -57,12 +62,12 @@ public class Lot_Background_Service extends IntentService {
     }
 
     @Override
-    public void onHandleIntent(Intent intent) {
+    public int onStartCommand(Intent intent, int flags, int startID) {
+        Log.d(TAG, "onStartCommand");
+        super.onStartCommand(intent, flags, startID);
+        startTimer();
 
-        //Search parking lot API
-        Log.d(TAG, "findLotSize");
-        findLotSize(0);
-
+        return START_STICKY;
     }
 
     @Override
@@ -70,18 +75,19 @@ public class Lot_Background_Service extends IntentService {
         super.onDestroy();
         Log.d(TAG, "onDestroy");
 
-        wakeLock.release();
-        Log.d(TAG, "Wakelock released");
+        Intent broadcastIntent = new Intent(this, SensorRestarterBroadcastReceiver.class);
+        sendBroadcast(broadcastIntent);
+        stoptimertask();
     }
 
     private void findLotSize(int result)
     {
-        GetLotInfoAPI getLotInfoAPI = new GetLotInfoAPI();
+        Lot_Service.GetLotInfoAPI getLotInfoAPI = new Lot_Service.GetLotInfoAPI();
         String r = "";
 
         //List of lots to choose from
         if(result == 0)
-                r = "https://streetsoncloud.com/parking/rest/occupancy/id/84?callback=myCallback";
+            r = "https://streetsoncloud.com/parking/rest/occupancy/id/84?callback=myCallback";
         else
             if(result == 1)
                 r = "https://streetsoncloud.com/parking/rest/occupancy/id/238?callback=myCallback";
@@ -102,6 +108,14 @@ public class Lot_Background_Service extends IntentService {
         getLotInfoAPI.execute(r);
     }
 
+    private void runLotProgram()
+    {
+        notifManager = (NotificationManager)getSystemService(NOTIFICATION_SERVICE);
+        //Search parking lot API
+        Log.d(TAG, "findLotSize");
+        findLotSize(0);
+    }
+
     //Helper function that sets selectedLot from GetLotInfoAPI class
     private void returnLotInfo(String temp1, String temp2)
     {
@@ -116,17 +130,52 @@ public class Lot_Background_Service extends IntentService {
         if(toCheck.equals("Lot 30"))
             return 2188;
         else
-            if(toCheck.equals("Lot 6") )
-                return 328;
-            else
-                if(toCheck.equals("LOT 24"))
-                    return 387;
-                else
-                    if(toCheck.equals("Big Springs Structure"))
-                        return 559;
+        if(toCheck.equals("Lot 6") )
+            return 328;
+        else
+        if(toCheck.equals("LOT 24"))
+            return 387;
+        else
+        if(toCheck.equals("Big Springs Structure"))
+            return 559;
 
 
         return 0;
+    }
+
+    //------------------------------------------/
+    //--------------TIMER SETUP-----------------/
+    //------------------------------------------/
+
+
+    private Timer timer;
+    private TimerTask timerTask;
+    long oldTime=0;
+    public void startTimer() {
+        //set a new Timer
+        timer = new Timer();
+
+        //initialize the TimerTask's job
+        initializeTimerTask();
+
+        //schedule the timer, to wake up every 1 second
+        timer.schedule(timerTask, 1000, 1000); //
+    }
+
+    public void initializeTimerTask() {
+        timerTask = new TimerTask() {
+            public void run() {
+                Log.i("in timer", "in timer ++++  "+ (counter++));
+            }
+        };
+    }
+
+    public void stoptimertask() {
+        //stop the timer, if it's not already null
+        if (timer != null) {
+            timer.cancel();
+            timer = null;
+        }
     }
 
 
@@ -142,6 +191,8 @@ public class Lot_Background_Service extends IntentService {
         NotificationManager notificationManager = getSystemService(NotificationManager.class);
         notificationManager.createNotificationChannel(channel1);
 
+        runLotProgram();
+
     }
 
     //Main notification button for lot capacity percentage
@@ -153,7 +204,7 @@ public class Lot_Background_Service extends IntentService {
         NotificationCompat.Builder builder = new NotificationCompat.Builder(this, CHANNEL_1_ID)
                 .setSmallIcon(R.drawable.ic_notif)
                 .setContentTitle("EasyPark @ UCR")
-                .setContentText(lotName + " is now 25% free, with " + intLotSize + " spaces available!")
+                .setContentText(lotName + " is now 30% free, with " + intLotSize + " spaces available!")
                 .setPriority(NotificationCompat.PRIORITY_HIGH);
 
         //Create notification intent
@@ -193,9 +244,20 @@ public class Lot_Background_Service extends IntentService {
                 intLotSize = Integer.valueOf(lotSpotsAvail);
                 double percentFree = FindLotMaxCapacity(location) * 0.30;
 
-                if (intLotSize > percentFree) {
+                //Test
+                if(intLotSize >= percentFree)
                     lotCapacityNotification();
-                }
+
+
+//                if((intLotSize >= percentFree) && !hasCapacity) { //If the parking lot gains capacity, switch hasCapacity to true and send a notification
+//                    hasCapacity = true;
+//                    lotCapacityNotification();
+//                }
+//                else
+//                    if ((intLotSize < percentFree) && hasCapacity) { //If the parking lot loses capacity, switch hasCapacity to false
+//
+//                        hasCapacity = false;
+//                    } //Do not send a notification again (set boolean hasCapacity
             }
             catch (Exception e)
             {

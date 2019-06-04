@@ -1,6 +1,8 @@
 package com.example.project;
 
+import android.app.ActivityManager;
 import android.content.Intent;
+import android.content.Context;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -47,11 +49,12 @@ import android.view.View.OnClickListener;
 public class HomeScreen extends AppCompatActivity {
 
     private FirebaseUser user;
-    private Button updatePersonal, updateSchedule,google_maps,logout;
+    private Button updatePersonal, updateSchedule,google_maps,logout, button;
     private String nextLocation;                                                //0-------------------- test
     private static User_Information userInfo;
-
     private static final String TAG = "User";
+
+    Intent serviceIntent;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -60,6 +63,14 @@ public class HomeScreen extends AppCompatActivity {
         String uid = user.getUid();
 
         DocumentReference docRef = db.collection("User_Information").document(uid);
+
+        //Start notification service
+        Log.d(TAG, "Initiate new intent");
+        serviceIntent = new Intent(this, Lot_Service.class);
+        Lot_Service lotService = new Lot_Service();
+        if (!isMyServiceRunning(lotService.getClass())) {
+            startService(serviceIntent);
+        }
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home_screen);
@@ -147,6 +158,13 @@ public class HomeScreen extends AppCompatActivity {
                 }
             }
         });
+    }
+
+    @Override
+    protected void onDestroy() {
+        stopService(serviceIntent);
+        Log.d(TAG, "onDestroy");
+        super.onDestroy();;
     }
 
     private String lot_to_URL(String preferred_lot) {
@@ -419,6 +437,18 @@ public class HomeScreen extends AppCompatActivity {
 
         });
 
+    }
+
+    private boolean isMyServiceRunning(Class<?> serviceClass) {
+        ActivityManager manager = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
+        for (ActivityManager.RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)) {
+            if (serviceClass.getName().equals(service.service.getClassName())) {
+                Log.i ("Service status", "Running");
+                return true;
+            }
+        }
+        Log.i ("Service status", "Not running");
+        return false;
     }
 
 }

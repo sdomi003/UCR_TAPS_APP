@@ -34,19 +34,13 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     private Button LogSign;
     private Spinner spinner;
     private static final String[] paths = {"Big Springs Structure", "Lot 6", "Lot 24", "Lot 26", "Lot 30", "Lot 32"};
-    public static final String CHANNEL_1_ID = "channel1";
     public static final String TAG = "MainActivity";
-    private String token, lotFreeSpace;
+    private String token;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
-        //Start notification service
-        Log.d(TAG, "Initiate new intent");
-        Intent serviceIntent = new Intent(this, Lot_Background_Service.class);
-        startService(serviceIntent);
 
         LogSign = findViewById(R.id.Log_Sign_Button);
         LogSign.setOnClickListener(new View.OnClickListener() {
