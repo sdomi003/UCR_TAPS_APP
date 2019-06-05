@@ -20,7 +20,8 @@
     <string name="title_activity_log_in">LogIn</string>
     <string name="title_activity_login">Sign in</string>
     <string name="update_button">Update</string>
-    <string name="welcome">"Welcome!"</string>
+    <string name="welcome">Welcome!</string>
+    <string name="server_client_id">71241042505-pkaauoka384t5u7l3s4gb2t8es4t5ili.apps.googleusercontent.com</string>
 
     <string name="msg_token_fmt" translatable="false">InstanceID Token: %s</string>
 

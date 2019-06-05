@@ -35,7 +35,6 @@
         app:layout_constraintTop_toBottomOf="@+id/UpdatePersonalOption" />
 
     <TextView
-        android:autoLink="web"
         android:id="@+id/Greeting"
         android:layout_width="231dp"
         android:layout_height="55dp"
@@ -43,6 +42,7 @@
         android:layout_marginTop="120dp"
         android:layout_marginEnd="90dp"
         android:layout_marginBottom="556dp"
+        android:autoLink="web"
         android:text="@string/hello_message"
         android:textAlignment="center"
         android:textSize="30sp"
@@ -96,15 +96,32 @@
 
     <Button
         android:id="@+id/weblink"
-        android:onClick="open"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
+        android:layout_marginTop="32dp"
         android:layout_marginEnd="8dp"
+        android:layout_marginBottom="40dp"
+        android:onClick="open"
         android:text="Purchase a pass"
+        app:layout_constraintBottom_toTopOf="@+id/Greeting"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.908"
+        app:layout_constraintHorizontal_bias="0.072"
         app:layout_constraintStart_toStartOf="parent"
-        tools:layout_editor_absoluteY="16dp" />
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <Button
+        android:id="@+id/log"
+        android:layout_width="99dp"
+        android:layout_height="36dp"
+        android:layout_marginStart="116dp"
+        android:layout_marginTop="32dp"
+        android:layout_marginEnd="13dp"
+        android:layout_marginBottom="52dp"
+        android:text="Log Out"
+        app:layout_constraintBottom_toTopOf="@+id/Greeting"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/weblink"
+        app:layout_constraintTop_toTopOf="parent" />
 
 </android.support.constraint.ConstraintLayout>

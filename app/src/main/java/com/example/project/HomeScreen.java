@@ -14,6 +14,9 @@ import android.widget.Button;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import com.google.android.gms.auth.api.signin.GoogleSignIn;
+import com.google.android.gms.auth.api.signin.GoogleSignInClient;
+import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
@@ -47,7 +50,7 @@ import android.view.View.OnClickListener;
 public class HomeScreen extends AppCompatActivity {
 
     private FirebaseUser user;
-    private Button updatePersonal, updateSchedule,google_maps,logout;
+    private Button updatePersonal, updateSchedule,google_maps,logout,button;
     private String nextLocation;                                                //0-------------------- test
     private static User_Information userInfo;
 
@@ -147,6 +150,17 @@ public class HomeScreen extends AppCompatActivity {
                 }
             }
         });
+
+        logout = findViewById(R.id.log);
+        logout.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View view){
+                signOut();
+                Intent myIntent = new Intent(HomeScreen.this,MainActivity.class);
+                startActivity(myIntent);
+            }
+        });
+
     }
 
     private String lot_to_URL(String preferred_lot) {
@@ -419,6 +433,21 @@ public class HomeScreen extends AppCompatActivity {
 
         });
 
+    }
+
+    private void signOut() {
+        GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+                .requestIdToken(getString(R.string.server_client_id))
+                .requestEmail()
+                .build();
+        GoogleSignInClient mGoogleSignInClient = GoogleSignIn.getClient(this,gso);
+        mGoogleSignInClient.signOut()
+                .addOnCompleteListener(this, new OnCompleteListener<Void>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Void> task) {
+                        // ...
+                    }
+                });
     }
 
 }
