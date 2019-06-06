@@ -564,4 +564,11 @@ public class HomeScreen extends AppCompatActivity {
                 });
     }
 
+    @Override
+    public void onBackPressed() {
+        Intent myIntent = new Intent(this, HomeScreen.class);
+
+        startActivity(myIntent);
+    }
+
 }
