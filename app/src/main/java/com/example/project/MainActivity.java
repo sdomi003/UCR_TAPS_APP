@@ -3,8 +3,8 @@ package com.example.project;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.support.v7.app.AppCompatActivity;
 import android.support.annotation.NonNull;
+import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
@@ -12,6 +12,11 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.Spinner;
 import android.widget.TextView;
+
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.iid.FirebaseInstanceId;
+import com.google.firebase.iid.InstanceIdResult;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -23,24 +28,25 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.nio.charset.Charset;
 
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
-import com.google.firebase.iid.FirebaseInstanceId;
-import com.google.firebase.iid.InstanceIdResult;
-
 
 public class MainActivity extends AppCompatActivity implements AdapterView.OnItemSelectedListener {
 
     private Button LogSign;
     private Spinner spinner;
     private static final String[] paths = {"Big Springs Structure", "Lot 6", "Lot 24", "Lot 26", "Lot 30", "Lot 32"};
+    public static final String CHANNEL_1_ID = "channel1";
     public static final String TAG = "MainActivity";
-    private String token;
+    private String token, lotFreeSpace;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        //Start notification service
+        Log.d(TAG, "Initiate new intent");
+        Intent serviceIntent = new Intent(this, Lot_Background_Service.class);
+        startService(serviceIntent);
 
         LogSign = findViewById(R.id.Log_Sign_Button);
         LogSign.setOnClickListener(new View.OnClickListener() {
@@ -56,7 +62,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         //Need submit button functionality that goes back to MainActivity
         //----------------------------------------------------------------------------------
 
-        spinner = (Spinner) findViewById(R.id.lot_spinner);
+        spinner = findViewById(R.id.lot_spinner);
         ArrayAdapter<String> adapter = new ArrayAdapter<String>(MainActivity.this,
                 android.R.layout.simple_spinner_item, paths);
 
@@ -83,6 +89,13 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                     }
                 });
 
+    }
+
+    @Override
+    public void onBackPressed() {
+        Intent myIntent = new Intent(this, MainActivity.class);
+
+        startActivity(myIntent);
     }
 
     //------------------------------------------/
@@ -138,7 +151,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
         @Override
         protected void onPostExecute(String jsonp) {
-            final TextView tv = (TextView) findViewById(R.id.guest_lot_info_view);
+            final TextView tv = findViewById(R.id.guest_lot_info_view);
 
             try {
                 JSONObject jsonResult = getJSONObject(jsonp);

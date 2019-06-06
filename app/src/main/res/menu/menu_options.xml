@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item
+        android:id="@+id/updateScheduleMenuOp"
+        android:title="string/update_schedule"
+        />
+
+    <item
+        android:id="@+id/updatePersonalMenuOp"
+        android:title="string/update_personal_info"
+        />
+
+
+    <item
+        android:id="@+id/navigateClassMenuOp"
+        android:title="string/take_me_to_class"
+        />
+
+    <item
+        android:id="@+id/weblinkMenuOp"
+        android:title="string/purchase_a_pass"
+        />
+    <item
+        android:id="@+id/LyftButtonMenuOp"
+        android:title="string/lyft"
+        />
+</menu>

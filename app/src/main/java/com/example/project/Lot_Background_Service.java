@@ -1,15 +1,16 @@
 package com.example.project;
 
+import android.app.IntentService;
 import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
-import android.app.Service;
-import android.content.Context;
 import android.content.Intent;
+import android.content.Context;
 import android.os.AsyncTask;
 import android.os.Build;
-import android.os.IBinder;
+import android.os.PowerManager;
+import android.os.SystemClock;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 
@@ -22,56 +23,46 @@ import java.io.InputStreamReader;
 import java.net.URL;
 import java.net.URLConnection;
 import java.nio.charset.Charset;
-
-import java.util.Timer;
-import java.util.TimerTask;
-
-import javax.annotation.Nullable;
+import java.lang.String;
 
 
-public class Lot_Service extends Service {
-    private static final String TAG = "Lot_Service";
+public class Lot_Background_Service extends IntentService {
+    private static final String TAG = "Lot_Background_Service";
     public static final String CHANNEL_1_ID = "channel1";
-    public int counter = 0;
-    public boolean hasCapacity = false;
-    protected NotificationManager notifManager;
+    private PowerManager.WakeLock wakeLock;
     private String lotSpotsAvail = "0";
     private int intLotSize;
     private String lotName = "";
-    private String favLot = "";
 
-    public Lot_Service() {
-    }
-
-    @Nullable
-    @Override
-    public IBinder onBind(Intent intent) {
-        // TODO: Return the communication channel to the service
-        return null;
+    public Lot_Background_Service() {
+        super(TAG);
+        setIntentRedelivery(true);
     }
 
     @Override
     public void onCreate() {
-        Log.d(TAG, "onCreate");
         super.onCreate();
+        Log.d(TAG, "onCreate");
 
-    }
-
-    @Override
-    public int onStartCommand(Intent intent, int flags, int startID) {
-        Log.d(TAG, "onStartCommand");
-        super.onStartCommand(intent, flags, startID);
-        favLot = intent.getStringExtra("Favorite Lot");
-        Log.d(TAG, "favLot: " + favLot);
+        PowerManager powerManager = (PowerManager) getSystemService(POWER_SERVICE);
+        wakeLock = powerManager.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "ExampleApp:WakeLock");
+        wakeLock.acquire(6000000);
+        Log.d(TAG, "wakelock acquired");
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             startForegroundHelper();
         }
         else
             startForeground(1, new Notification());
-        startTimer();
+    }
 
-        return START_STICKY;
+    @Override
+    public void onHandleIntent(Intent intent) {
+
+        //Search parking lot API
+        Log.d(TAG, "findLotSize");
+        findLotSize(0);
+
     }
 
     @Override
@@ -79,41 +70,32 @@ public class Lot_Service extends Service {
         super.onDestroy();
         Log.d(TAG, "onDestroy");
 
-        Intent broadcastIntent = new Intent(this, SensorRestarterBroadcastReceiver.class);
-        sendBroadcast(broadcastIntent);
-        stoptimertask();
+        wakeLock.release();
+        Log.d(TAG, "Wakelock released");
     }
 
-    //MAIN FUNCTION FOR GETTING A LOT NOTIFICATION
-    private void runLotProgram()
+    private void findLotSize(int result)
     {
-        notifManager = (NotificationManager)getSystemService(NOTIFICATION_SERVICE);
-        //Search parking lot API
-        Log.d(TAG, "findLotSize");
-        findLotSize(favLot); //Get notifications for user's favorite lot
-    }
-
-    private void findLotSize(String result)
-    {
-        Lot_Service.GetLotInfoAPI getLotInfoAPI = new Lot_Service.GetLotInfoAPI();
+        GetLotInfoAPI getLotInfoAPI = new GetLotInfoAPI();
         String r = "";
 
-        if(result.equals("Big Springs Structure"))
-            r = "https://streetsoncloud.com/parking/rest/occupancy/id/84?callback=myCallback";
+        //List of lots to choose from
+        if(result == 0)
+                r = "https://streetsoncloud.com/parking/rest/occupancy/id/84?callback=myCallback";
         else
-            if(result.equals("Lot 6") )
+            if(result == 1)
                 r = "https://streetsoncloud.com/parking/rest/occupancy/id/238?callback=myCallback";
             else
-                if(result.equals("LOT 24"))
+                if(result == 2)
                     r = "https://streetsoncloud.com/parking/rest/occupancy/id/243?callback=myCallback";
                 else
-                    if(result.equals("Lot 26"))
+                    if(result == 3)
                         r = "https://streetsoncloud.com/parking/rest/occupancy/id/80?callback=myCallback";
                     else
-                        if(result.equals("Lot 30"))
+                        if(result == 4)
                             r = "https://streetsoncloud.com/parking/rest/occupancy/id/82?callback=myCallback";
                         else
-                            if(result.equals("Lot 32"))
+                            if(result == 5)
                                 r = "https://streetsoncloud.com/parking/rest/occupancy/id/83?callback=myCallback";
 
 
@@ -131,8 +113,8 @@ public class Lot_Service extends Service {
     //Used for getting the maximum lot capacity
     private int FindLotMaxCapacity(String toCheck)
     {
-        if(toCheck.equals("Big Springs Structure"))
-            return 559;
+        if(toCheck.equals("Lot 30"))
+            return 2188;
         else
             if(toCheck.equals("Lot 6") )
                 return 328;
@@ -140,59 +122,11 @@ public class Lot_Service extends Service {
                 if(toCheck.equals("LOT 24"))
                     return 387;
                 else
-                    if(toCheck.equals("Lot 26"))
-                        return 438;
-                    else
-                        if(toCheck.equals("Lot 30"))
-                            return 2188;
-                        else
-                            if(toCheck.equals("Lot 32"))
-                                return 258;
+                    if(toCheck.equals("Big Springs Structure"))
+                        return 559;
 
 
         return 0;
-    }
-
-    //------------------------------------------/
-    //--------------TIMER SETUP-----------------/
-    //------------------------------------------/
-
-
-    private Timer timer;
-    private TimerTask timerTask;
-    long oldTime=0;
-
-    public void startTimer() {
-        //set a new Timer
-        timer = new Timer();
-
-        //initialize the TimerTask's job
-        initializeTimerTask();
-
-        //schedule the timer, to wake up every 1 second
-        timer.schedule(timerTask, 1000, 1000);
-
-    }
-
-    public void initializeTimerTask() {
-        timerTask = new TimerTask() {
-            public void run() {
-                Log.i("in timer", "in timer ++++  "+ (counter++));
-
-                if(counter % 300 == 0) //5 minutes = 300 seconds, use 10 for testing purposes
-                {
-                    runLotProgram();
-                }
-            }
-        };
-    }
-
-    public void stoptimertask() {
-        //stop the timer, if it's not already null
-        if (timer != null) {
-            timer.cancel();
-            timer = null;
-        }
     }
 
 
@@ -208,8 +142,6 @@ public class Lot_Service extends Service {
         NotificationManager notificationManager = getSystemService(NotificationManager.class);
         notificationManager.createNotificationChannel(channel1);
 
-        runLotProgram();
-
     }
 
     //Main notification button for lot capacity percentage
@@ -221,7 +153,7 @@ public class Lot_Service extends Service {
         NotificationCompat.Builder builder = new NotificationCompat.Builder(this, CHANNEL_1_ID)
                 .setSmallIcon(R.drawable.ic_notif)
                 .setContentTitle("EasyPark @ UCR")
-                .setContentText(lotName + " is now 30% free, with " + intLotSize + " spaces available!")
+                .setContentText(lotName + " is now 25% free, with " + intLotSize + " spaces available!")
                 .setPriority(NotificationCompat.PRIORITY_HIGH);
 
         //Create notification intent
@@ -261,20 +193,9 @@ public class Lot_Service extends Service {
                 intLotSize = Integer.valueOf(lotSpotsAvail);
                 double percentFree = FindLotMaxCapacity(location) * 0.30;
 
-//                //For testing purposes only
-//                if(intLotSize >= percentFree)
-//                    lotCapacityNotification();
-
-
-                if((intLotSize >= percentFree) && !hasCapacity) { //If the parking lot gains capacity, switch hasCapacity to true and send a notification
-                    hasCapacity = true;
+                if (intLotSize > percentFree) {
                     lotCapacityNotification();
                 }
-                else
-                    if ((intLotSize < percentFree) && hasCapacity) { //If the parking lot loses capacity, switch hasCapacity to false
-
-                        hasCapacity = false;
-                    } //Do not send a notification again (set boolean hasCapacity
             }
             catch (Exception e)
             {

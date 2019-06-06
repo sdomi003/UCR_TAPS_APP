@@ -9,7 +9,6 @@ import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ListView;
-import android.widget.TextView;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -70,13 +69,13 @@ public class ScheduleActivity extends AppCompatActivity {
                         }
                         if(thursday.size() != 0)
                         {
-                                ListView lv = (ListView) findViewById(R.id.thursday_list);
+                                ListView lv = findViewById(R.id.thursday_list);
                                 ArrayAdapter<String> thursday_adapter = new ArrayAdapter<String>(ScheduleActivity.this,android.R.layout.simple_list_item_1,thursday);
                                 lv.setAdapter(thursday_adapter);
                         }
                         if(friday.size() != 0)
                         {
-                                ListView lv = (ListView) findViewById(R.id.friday_list);
+                                ListView lv = findViewById(R.id.friday_list);
                                 ArrayAdapter<String> friday_adapter = new ArrayAdapter<String>(ScheduleActivity.this,android.R.layout.simple_list_item_1,friday);
                                 lv.setAdapter(friday_adapter);
                         }

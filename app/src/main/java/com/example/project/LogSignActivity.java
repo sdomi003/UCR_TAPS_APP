@@ -1,9 +1,9 @@
 package com.example.project;
 
 import android.content.Intent;
+import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
-import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -17,7 +17,6 @@ import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
 
 import static com.google.firebase.auth.FirebaseAuth.getInstance;
 
@@ -57,8 +56,8 @@ public class LogSignActivity extends AppCompatActivity {
         Log_In.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                EditText pass_field = (EditText)findViewById(R.id.password);
-                EditText user_field = (EditText)findViewById(R.id.email);
+                EditText pass_field = findViewById(R.id.password);
+                EditText user_field = findViewById(R.id.email);
                 String email = user_field.getText().toString();
                 String password = pass_field.getText().toString();
 

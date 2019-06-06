@@ -22,12 +22,18 @@
     <string name="update_button">Update</string>
     <string name="welcome">Welcome!</string>
     <string name="server_client_id">71241042505-pkaauoka384t5u7l3s4gb2t8es4t5ili.apps.googleusercontent.com</string>
+
     <string name="msg_token_fmt" translatable="false">InstanceID Token: %s</string>
 
 
 
     <string name="day_prompt">What day is your class?</string>
     <string name="location_prompt">Where is your class?</string>
+    <string name="update_schedule">Update Schedule</string>
+    <string name="update_personal_info">Update Personal Info</string>
+    <string name="take_me_to_class">Take me to class</string>
+    <string name="purchase_a_pass">Purchase a pass</string>
+    <string name="lyft">Lyft</string>
     <string-array name="locations">
         <item>Winston Chung Hall</item>
         <item>Bourns Hall</item>

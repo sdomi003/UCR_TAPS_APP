@@ -1,19 +1,18 @@
 package com.example.project;
 
-import android.app.ActivityManager;
-import android.content.Intent;
-import android.content.Context;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.UserHandle;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -25,11 +24,16 @@ import com.google.android.gms.auth.api.signin.GoogleSignInClient;
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
-import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.twitter.sdk.android.core.DefaultLogger;
+import com.twitter.sdk.android.core.Twitter;
+import com.twitter.sdk.android.core.TwitterAuthConfig;
+import com.twitter.sdk.android.core.TwitterConfig;
+import com.twitter.sdk.android.tweetui.TweetTimelineListAdapter;
+import com.twitter.sdk.android.tweetui.UserTimeline;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -41,27 +45,20 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.nio.charset.Charset;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
 import static com.google.firebase.auth.FirebaseAuth.getInstance;
-import android.app.Activity;
-import android.content.Intent;
-import android.net.Uri;
-import android.os.Bundle;
-import android.widget.Button;
-import android.view.View;
-import android.view.View.OnClickListener;
 public class HomeScreen extends AppCompatActivity {
 
     private FirebaseUser user;
     private Button updatePersonal, updateSchedule,google_maps,logout,button;
+    private ListView tweetList;
     private String nextLocation;                                                //0-------------------- test
     private static User_Information userInfo;
+
     private static final String TAG = "User";
 
-    Intent serviceIntent;
     private static final String TAG_2 = "lyft:Example";
     private static final String LYFT_PACKAGE = "me.lyft.android";
 
@@ -73,13 +70,8 @@ public class HomeScreen extends AppCompatActivity {
 
         DocumentReference docRef = db.collection("User_Information").document(uid);
 
-        //Start notification service pt 1
-        Log.d(TAG, "Initiate new intent");
-        serviceIntent = new Intent(this, Lot_Service.class);
-
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home_screen);
-        addListenerOnButton();
         startService(new Intent(getBaseContext(),MyService.class));
         //------------------------------------------------------
         docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
@@ -90,15 +82,6 @@ public class HomeScreen extends AppCompatActivity {
                     if (document.exists()) {
                         Log.d(TAG, "DocumentSnapshot data: " + document.getData());
                         userInfo = new User_Information(document);
-
-                        String favLot = userInfo.AccessLot(); //Pass user's favorite lot
-                        serviceIntent.putExtra("Favorite Lot", favLot);
-                        Log.d(TAG, "HomeScreen favLot: " + favLot);
-
-                        Lot_Service lotService = new Lot_Service(); //Start notification service pt 2
-                        if (!isMyServiceRunning(lotService.getClass())) {
-                            startService(serviceIntent);
-                        }
                     } else {
                         Log.d(TAG, "No such document");
                     }
@@ -118,60 +101,33 @@ public class HomeScreen extends AppCompatActivity {
         });
         //----------------------------------------------------
 
+
+
+
+        TwitterConfig config = new TwitterConfig.Builder(this)
+                .logger(new DefaultLogger(Log.DEBUG))
+                .twitterAuthConfig(new TwitterAuthConfig("0tauDT6cxwdGQ054c2BH1XEf9", "hGGso4CbEPFlIHaCq05LveymIvaWEGElls7f1RQSIVzOlk3BGa"))
+                .debug(true)
+                .build();
+        Twitter.initialize(config);
+
+
+
+        //-------------------
+
         setContentView(R.layout.activity_home_screen);
 
-        //----------------------------------------------------      Update Personal Information Button
-        updatePersonal = findViewById(R.id.UpdatePersonalOption);
-        updatePersonal.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent myIntent = new Intent(HomeScreen.this, EditUserActivity.class);
-                myIntent.putExtra("personalData",userInfo);
-                startActivity(myIntent);
-            }
-        });
-        //--------------------------------------------------------------------
+        final UserTimeline userTimeline = new UserTimeline.Builder()
+                .screenName("UCRTAPS")
+                .build();
 
-        // ---------------------------------------------         Update Schedule Information button
-        updateSchedule = findViewById(R.id.UpdateScheduleOption);
-        updateSchedule.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent myIntent = new Intent(HomeScreen.this, ScheduleActivity.class);
-                startActivity(myIntent);
-            }
-        });
-        // -----------------------------------------------------------
+        final TweetTimelineListAdapter adapter = new TweetTimelineListAdapter.Builder(this)
+                .setTimeline(userTimeline)
+                .build();
+        tweetList = findViewById(R.id.tweets);
+        tweetList.setAdapter(adapter);
 
-        google_maps =  findViewById(R.id.launch_google_maps);
-        google_maps.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                nextLocation = nextClass(userInfo);
-                String lot_to_route_to = "None";
 
-                Intent myIntent;
-
-                if(nextLocation == "N/A"){
-                    myIntent = new Intent(HomeScreen.this, HomeScreen.class);
-                }
-                else {
-                    String preferred_lot = userInfo.AccessLot();
-                    myIntent = new Intent(HomeScreen.this, LaunchGoogleMaps.class);
-                    if (userInfo.AccessLot().equals("None")) {
-
-                        LaunchNearestClass launchNearestClass = new LaunchNearestClass();
-                        launchNearestClass.execute(nextLocation);
-                    } else {
-                        // try the preferred lot
-                        String preferred_lot_URL = lot_to_URL(preferred_lot);
-                        TryPreferredLot tryPreferredLot = new TryPreferredLot();
-                        tryPreferredLot.execute(preferred_lot_URL);
-
-                    }
-                }
-            }
-        });
 
         logout = findViewById(R.id.log);
         logout.setOnClickListener(new View.OnClickListener(){
@@ -186,29 +142,93 @@ public class HomeScreen extends AppCompatActivity {
 
 
 
-        findViewById(R.id.LyftButton).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                deepLinkIntoLyft();
-            }
-        });
 
 
     }
 
-    private void deepLinkIntoLyft() {
-        if (isPackageInstalled(this, LYFT_PACKAGE)) {
-            //This intent will help you to launch if the package is already installed
-            String l = lot_to_DeepLink(nextClass(userInfo));
-            openLink(this, l);
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_options, menu);
+        return super.onCreateOptionsMenu(menu);
+    }
 
-            Log.d(TAG, "Lyft is already installed on your phone.");
-        } else {
-            openLink(this, "https://www.lyft.com/signup/SDKSIGNUP?clientId=YOUR_CLIENT_ID&sdkName=android_direct");
 
-            Log.d(TAG, "Lyft is not currently installed on your phone..");
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int id = item.getItemId();
+
+        //passes unison pr list to differencelistactivity
+        if (id == R.id.updateScheduleMenuOp) {
+            System.out.println("Hit unison button");
+            Intent myIntent = new Intent(this, ScheduleActivity.class);
+
+            startActivity(myIntent);
         }
+
+        if (id == R.id.updatePersonalMenuOp) {
+            System.out.println("Hit unison button");
+            Intent myIntent = new Intent(this, EditUserActivity.class);
+            myIntent.putExtra("personalData",userInfo);
+
+            startActivity(myIntent);
+        }
+
+        if (id == R.id.navigateClassMenuOp) {
+            System.out.println("Hit unison button");
+            nextLocation = nextClass(userInfo);
+            String lot_to_route_to = "None";
+
+            Intent myIntent;
+
+            if(nextLocation == "N/A"){
+                myIntent = new Intent(HomeScreen.this, HomeScreen.class);
+            }
+            else {
+                String preferred_lot = userInfo.AccessLot();
+                myIntent = new Intent(HomeScreen.this, LaunchGoogleMaps.class);
+                if (userInfo.AccessLot().equals("None")) {
+
+                    LaunchNearestClass launchNearestClass = new LaunchNearestClass();
+                    launchNearestClass.execute(nextLocation);
+                } else {
+                    // try the preferred lot
+                    String preferred_lot_URL = lot_to_URL(preferred_lot);
+                    TryPreferredLot tryPreferredLot = new TryPreferredLot();
+                    tryPreferredLot.execute(preferred_lot_URL);
+
+                }
+            }
+        }
+
+        if (id == R.id.weblinkMenuOp) {
+            Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://flexport.ucr.edu/ebusiness/Account/Portal"));
+            startActivity(browserIntent);
+
+        }
+
+        if (id == R.id.LyftButtonMenuOp) {
+            if (isPackageInstalled(this, LYFT_PACKAGE)) {
+                //This intent will help you to launch if the package is already installed
+                String l = lot_to_DeepLink(nextClass(userInfo));
+                openLink(this, l);
+
+                Log.d(TAG, "Lyft is already installed on your phone.");
+            } else {
+                openLink(this, "https://www.lyft.com/signup/SDKSIGNUP?clientId=YOUR_CLIENT_ID&sdkName=android_direct");
+
+                Log.d(TAG, "Lyft is not currently installed on your phone..");
+            }
+        }
+        return super.onOptionsItemSelected(item);
     }
+
+    @Override
+    public void onBackPressed() {
+        Intent myIntent = new Intent(this, HomeScreen.class);
+
+        startActivity(myIntent);
+    }
+
 
     static void openLink(Activity activity, String link) {
         Intent playStoreIntent = new Intent(Intent.ACTION_VIEW);
@@ -226,13 +246,6 @@ public class HomeScreen extends AppCompatActivity {
             // ignored.
         }
         return false;
-    }
-
-    @Override
-    protected void onDestroy() {
-        stopService(serviceIntent);
-        Log.d(TAG, "onDestroy");
-        super.onDestroy();;
     }
 
     private String lot_to_URL(String preferred_lot) {
@@ -317,7 +330,7 @@ public class HomeScreen extends AppCompatActivity {
         protected void onPostExecute(String spots_and_lot) {
 
             try {
-                String strings[] = spots_and_lot.split(" ", 2);
+                String[] strings = spots_and_lot.split(" ", 2);
                 String spots_available = strings[0];
                 String next_lot_URL = strings[1];
                 if (Integer.parseInt(spots_available) > 0) {
@@ -519,35 +532,6 @@ public class HomeScreen extends AppCompatActivity {
         return nextClassLocation;
     }
 
-    public void addListenerOnButton() {
-
-        button = (Button) findViewById(R.id.weblink);
-
-        button.setOnClickListener(new OnClickListener() {
-
-            @Override
-            public void onClick(View view) {
-
-                Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://flexport.ucr.edu/ebusiness/Account/Portal"));
-                startActivity(browserIntent);
-
-            }
-
-        });
-
-    }
-
-    private boolean isMyServiceRunning(Class<?> serviceClass) {
-        ActivityManager manager = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
-        for (ActivityManager.RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)) {
-            if (serviceClass.getName().equals(service.service.getClassName())) {
-                Log.i("Service status", "Running");
-                return true;
-            }
-        }
-        Log.i("Service status", "Not running");
-        return false;
-    }
 
     private void signOut() {
         GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
