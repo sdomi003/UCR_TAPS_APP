@@ -14,6 +14,8 @@ import android.os.UserHandle;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -120,28 +122,6 @@ public class HomeScreen extends AppCompatActivity {
 
         setContentView(R.layout.activity_home_screen);
 
-        //----------------------------------------------------      Update Personal Information Button
-        updatePersonal = findViewById(R.id.UpdatePersonalOption);
-        updatePersonal.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent myIntent = new Intent(HomeScreen.this, EditUserActivity.class);
-                myIntent.putExtra("personalData",userInfo);
-                startActivity(myIntent);
-            }
-        });
-        //--------------------------------------------------------------------
-
-        // ---------------------------------------------         Update Schedule Information button
-        updateSchedule = findViewById(R.id.UpdateScheduleOption);
-        updateSchedule.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent myIntent = new Intent(HomeScreen.this, ScheduleActivity.class);
-                startActivity(myIntent);
-            }
-        });
-        // -----------------------------------------------------------
 
         google_maps =  findViewById(R.id.launch_google_maps);
         google_maps.setOnClickListener(new View.OnClickListener() {
@@ -173,27 +153,46 @@ public class HomeScreen extends AppCompatActivity {
             }
         });
 
-        logout = findViewById(R.id.log);
-        logout.setOnClickListener(new View.OnClickListener(){
-            @Override
-            public void onClick(View view){
-                signOut();
-                Intent myIntent = new Intent(HomeScreen.this,MainActivity.class);
-                startActivity(myIntent);
-            }
-        });
-
-
-
-
         findViewById(R.id.LyftButton).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 deepLinkIntoLyft();
             }
         });
+    }
 
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_options, menu);
+        return super.onCreateOptionsMenu(menu);
+    }
 
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int id = item.getItemId();
+
+        //passes unison pr list to differencelistactivity
+        if (id == R.id.updateScheduleMenuOp) {
+            System.out.println("Hit unison button");
+            Intent myIntent = new Intent(this, ScheduleActivity.class);
+
+            startActivity(myIntent);
+        }
+
+        if (id == R.id.updatePersonalMenuOp) {
+            System.out.println("Hit unison button");
+            Intent myIntent = new Intent(this, EditUserActivity.class);
+            myIntent.putExtra("personalData",userInfo);
+
+            startActivity(myIntent);
+        }
+        if (id == R.id.logOp) {
+            signOut();
+            Intent myIntent = new Intent(HomeScreen.this,MainActivity.class);
+            startActivity(myIntent);
+        }
+
+        return super.onOptionsItemSelected(item);
     }
 
     private void deepLinkIntoLyft() {

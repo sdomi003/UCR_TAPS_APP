@@ -117,4 +117,11 @@ public class ScheduleActivity extends AppCompatActivity {
         });
 
     }
+
+    @Override
+    public void onBackPressed() {
+        Intent myIntent = new Intent(this, HomeScreen.class);
+
+        startActivity(myIntent);
+    }
 }
