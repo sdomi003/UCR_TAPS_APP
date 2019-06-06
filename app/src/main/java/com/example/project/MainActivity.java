@@ -28,6 +28,25 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.iid.FirebaseInstanceId;
 import com.google.firebase.iid.InstanceIdResult;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
+import android.graphics.Typeface;
+import android.os.AsyncTask;
+import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
+import android.text.Html;
+import android.view.View;
+import android.widget.EditText;
+import android.widget.LinearLayout;
+import android.widget.ProgressBar;
+import android.widget.TextView;
+import android.widget.Toast;
+import org.json.JSONException;
+import org.json.JSONObject;
+import java.text.DateFormat;
+import java.util.Date;
+import java.util.Locale;
+
 
 public class MainActivity extends AppCompatActivity implements AdapterView.OnItemSelectedListener {
 
@@ -36,6 +55,11 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     private static final String[] paths = {"Big Springs Structure", "Lot 6", "Lot 24", "Lot 26", "Lot 30", "Lot 32"};
     public static final String TAG = "MainActivity";
     private String token;
+
+    TextView current_temp, weatherIcon;
+    Typeface weatherFont;
+    String city = "Riverside, CA";
+    String OPEN_WEATHER_MAP_API = "7a36389866d58c02993d1bd695aa02ce";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -82,6 +106,14 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                         Log.d(TAG, msg);
                     }
                 });
+
+        //Weather widget
+        current_temp = (TextView) findViewById(R.id.current_temp);
+        weatherIcon = (TextView) findViewById(R.id.weather_icon);
+        weatherFont = Typeface.createFromAsset(getAssets(), "fonts/weathericons-regular-webfont.ttf");
+        weatherIcon.setTypeface(weatherFont);
+
+        taskLoadUp(city);
 
     }
 
@@ -210,4 +242,57 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     public void onNothingSelected(AdapterView<?> parent) {
         // TODO Auto-generated method stub
     }
+
+
+    //------------------------------------------/
+    //--------------WEATHER WIDGET--------------/
+    //------------------------------------------/
+
+    public void taskLoadUp(String query) {
+        if (weather_widget.isNetworkAvailable(getApplicationContext())) {
+            DownloadWeather task = new DownloadWeather();
+            task.execute(query);
+        } else {
+            Toast.makeText(getApplicationContext(), "No Internet Connection", Toast.LENGTH_LONG).show();
+        }
+    }
+
+
+
+    class DownloadWeather extends AsyncTask < String, Void, String > {
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+
+        }
+        protected String doInBackground(String...args) {
+            String xml = weather_widget.excuteGet("http://api.openweathermap.org/data/2.5/weather?q=" + args[0] +
+                    "&units=metric&appid=" + OPEN_WEATHER_MAP_API);
+            return xml;
+        }
+        @Override
+        protected void onPostExecute(String xml) {
+
+            try {
+                JSONObject json = new JSONObject(xml);
+                if (json != null) {
+                    JSONObject details = json.getJSONArray("weather").getJSONObject(0);
+                    JSONObject main = json.getJSONObject("main");
+                    double newTemp = main.getDouble("temp");
+                    String newTempString = newTemp + "" + "°";
+
+                    current_temp.setText(newTempString);
+                    weatherIcon.setText(Html.fromHtml(weather_widget.setWeatherIcon(details.getInt("id"),
+                            json.getJSONObject("sys").getLong("sunrise") * 1000,
+                            json.getJSONObject("sys").getLong("sunset") * 1000)));
+
+                }
+            } catch (JSONException e) {
+                Toast.makeText(getApplicationContext(), "Error, Check City", Toast.LENGTH_SHORT).show();
+            }
+
+        }
+
+    }
+
 }
