@@ -108,13 +108,13 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                 });
 
         //Weather widget
-        current_temp = (TextView) findViewById(R.id.current_temp);
+       /* current_temp = (TextView) findViewById(R.id.current_temp);
         weatherIcon = (TextView) findViewById(R.id.weather_icon);
         weatherFont = Typeface.createFromAsset(getAssets(), "font/weathericons_regular_webfont.ttf");
         weatherIcon.setTypeface(weatherFont);
 
         taskLoadUp(city);
-
+*/
     }
 
     //------------------------------------------/
@@ -253,51 +253,4 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
     //--------------WEATHER WIDGET--------------/
     //------------------------------------------/
 
-    public void taskLoadUp(String query) {
-        if (weather_widget.isNetworkAvailable(getApplicationContext())) {
-            DownloadWeather task = new DownloadWeather();
-            task.execute(query);
-        } else {
-            Toast.makeText(getApplicationContext(), "No Internet Connection", Toast.LENGTH_LONG).show();
-        }
     }
-
-
-
-    class DownloadWeather extends AsyncTask < String, Void, String > {
-        @Override
-        protected void onPreExecute() {
-            super.onPreExecute();
-
-        }
-        protected String doInBackground(String...args) {
-            String xml = weather_widget.excuteGet("http://api.openweathermap.org/data/2.5/weather?q=" + args[0] +
-                    "&units=metric&appid=" + OPEN_WEATHER_MAP_API);
-            return xml;
-        }
-        @Override
-        protected void onPostExecute(String xml) {
-
-            try {
-                JSONObject json = new JSONObject(xml);
-                if (json != null) {
-                    JSONObject details = json.getJSONArray("weather").getJSONObject(0);
-                    JSONObject main = json.getJSONObject("main");
-                    double newTemp = main.getDouble("temp");
-                    String newTempString = newTemp + "" + "°";
-
-                    current_temp.setText(newTempString);
-                    weatherIcon.setText(Html.fromHtml(weather_widget.setWeatherIcon(details.getInt("id"),
-                            json.getJSONObject("sys").getLong("sunrise") * 1000,
-                            json.getJSONObject("sys").getLong("sunset") * 1000)));
-
-                }
-            } catch (JSONException e) {
-                Toast.makeText(getApplicationContext(), "Error, Check City", Toast.LENGTH_SHORT).show();
-            }
-
-        }
-
-    }
-
-}

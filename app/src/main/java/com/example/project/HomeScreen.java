@@ -7,12 +7,14 @@ import android.content.Context;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Typeface;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.UserHandle;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
+import android.text.Html;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -55,10 +57,12 @@ import android.os.Bundle;
 import android.widget.Button;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.widget.Toast;
+
 public class HomeScreen extends AppCompatActivity {
 
     private FirebaseAuth Authentication;
-    private Button google_maps,button;
+    private Button google_maps, button;
     private String nextLocation;                                                //0-------------------- test
     private static User_Information userInfo;
     private static final String TAG = "User";
@@ -66,6 +70,12 @@ public class HomeScreen extends AppCompatActivity {
     Intent serviceIntent;
     private static final String TAG_2 = "lyft:Example";
     private static final String LYFT_PACKAGE = "me.lyft.android";
+
+    TextView current_temp, weatherIcon;
+    Typeface weatherFont;
+    String city = "Riverside,us";
+    String OPEN_WEATHER_MAP_API = "7a36389866d58c02993d1bd695aa02ce";
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -81,8 +91,7 @@ public class HomeScreen extends AppCompatActivity {
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home_screen);
-        addListenerOnButton();
-        startService(new Intent(getBaseContext(),MyService.class));
+        startService(new Intent(getBaseContext(), MyService.class));
         //------------------------------------------------------
         docRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
             @Override
@@ -110,9 +119,9 @@ public class HomeScreen extends AppCompatActivity {
                 nextLocation = nextClass(userInfo);
                 //System.out.println(nextLocation);
                 TextView textView = findViewById(R.id.Greeting);
-                textView.setText("Hello " + userInfo.AccessFirst() +"!");
+                textView.setText("Hello " + userInfo.AccessFirst() + "!");
                 ListView lv = findViewById(R.id.today_classes);
-                if(nextLocation != "N/A") {
+                if (nextLocation != "N/A") {
                     ArrayAdapter<String> adapter = new ArrayAdapter<String>(HomeScreen.this, android.R.layout.simple_list_item_1, userInfo.AccessClass());
                     lv.setAdapter(adapter);
                 }
@@ -123,7 +132,7 @@ public class HomeScreen extends AppCompatActivity {
         setContentView(R.layout.activity_home_screen);
 
 
-        google_maps =  findViewById(R.id.launch_google_maps);
+        google_maps = findViewById(R.id.launch_google_maps);
         google_maps.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -132,10 +141,9 @@ public class HomeScreen extends AppCompatActivity {
 
                 Intent myIntent;
 
-                if(nextLocation == "N/A"){
+                if (nextLocation == "N/A") {
                     myIntent = new Intent(HomeScreen.this, HomeScreen.class);
-                }
-                else {
+                } else {
                     String preferred_lot = userInfo.AccessLot();
                     myIntent = new Intent(HomeScreen.this, LaunchGoogleMaps.class);
                     if (userInfo.AccessLot().equals("None")) {
@@ -153,12 +161,33 @@ public class HomeScreen extends AppCompatActivity {
             }
         });
 
+        button = (Button) findViewById(R.id.weblink);
+
+        button.setOnClickListener(new OnClickListener() {
+
+            @Override
+            public void onClick(View view) {
+
+                Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://app.parkmobile.io/search"));
+                startActivity(browserIntent);
+
+            }
+
+        });
+
         findViewById(R.id.LyftButton).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 deepLinkIntoLyft();
             }
         });
+
+        current_temp = (TextView) findViewById(R.id.current_temp);
+        weatherIcon = (TextView) findViewById(R.id.weather_icon);
+        weatherFont = Typeface.createFromAsset(getAssets(), "font/weathericons_regular_webfont.ttf");
+        weatherIcon.setTypeface(weatherFont);
+
+        taskLoadUp(city);
     }
 
     @Override
@@ -182,13 +211,13 @@ public class HomeScreen extends AppCompatActivity {
         if (id == R.id.updatePersonalMenuOp) {
             System.out.println("Hit unison button");
             Intent myIntent = new Intent(this, EditUserActivity.class);
-            myIntent.putExtra("personalData",userInfo);
+            myIntent.putExtra("personalData", userInfo);
 
             startActivity(myIntent);
         }
         if (id == R.id.logOp) {
             signOut();
-            Intent myIntent = new Intent(HomeScreen.this,MainActivity.class);
+            Intent myIntent = new Intent(HomeScreen.this, MainActivity.class);
             startActivity(myIntent);
         }
 
@@ -231,7 +260,8 @@ public class HomeScreen extends AppCompatActivity {
     protected void onDestroy() {
         stopService(serviceIntent);
         Log.d(TAG, "onDestroy");
-        super.onDestroy();;
+        super.onDestroy();
+        ;
     }
 
     private String lot_to_URL(String preferred_lot) {
@@ -500,41 +530,22 @@ public class HomeScreen extends AppCompatActivity {
     private String nextClass(User_Information user) {
         List<String> classes = user.AccessClass();
         SimpleDateFormat simpleDateformat = new SimpleDateFormat("HHmm");
-        int time =Integer.parseInt(simpleDateformat.format(new Date()));
-        int earliest_time=2400;
-        if(user.AccessDay().equals("Sunday") || user.AccessDay().equals("Saturday"))
-        {
+        int time = Integer.parseInt(simpleDateformat.format(new Date()));
+        int earliest_time = 2400;
+        if (user.AccessDay().equals("Sunday") || user.AccessDay().equals("Saturday")) {
             return "N/A";
         }
         String nextClassLocation = "N/A";
         for (int a = 0; a < classes.size(); a++) {
-            String nice = classes.get(a).replace(":","");
+            String nice = classes.get(a).replace(":", "");
             int firstDash = nice.indexOf('-');
             int classTime = Integer.parseInt(nice.substring(firstDash + 1, nice.lastIndexOf('-')));
-            if(time < classTime && classTime < earliest_time) {
-                nextClassLocation = nice.substring(0,firstDash);
+            if (time < classTime && classTime < earliest_time) {
+                nextClassLocation = nice.substring(0, firstDash);
                 earliest_time = classTime;
             }
         }
         return nextClassLocation;
-    }
-
-    public void addListenerOnButton() {
-
-        button = (Button) findViewById(R.id.weblink);
-
-        button.setOnClickListener(new OnClickListener() {
-
-            @Override
-            public void onClick(View view) {
-
-                Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://flexport.ucr.edu/ebusiness/Account/Portal"));
-                startActivity(browserIntent);
-
-            }
-
-        });
-
     }
 
     private boolean isMyServiceRunning(Class<?> serviceClass) {
@@ -559,7 +570,7 @@ public class HomeScreen extends AppCompatActivity {
         final GoogleSignInClient mGoogleSignInClient = GoogleSignIn.getClient(this, googlesign);
 
         mGoogleSignInClient.signOut()
-                .addOnCompleteListener(HomeScreen.this,  new OnCompleteListener<Void>() {
+                .addOnCompleteListener(HomeScreen.this, new OnCompleteListener<Void>() {
                     @Override
                     public void onComplete(@NonNull Task<Void> task) {
 
@@ -574,4 +585,49 @@ public class HomeScreen extends AppCompatActivity {
         startActivity(myIntent);
     }
 
+    public void taskLoadUp(String query) {
+        if (weather_widget.isNetworkAvailable(getApplicationContext())) {
+            DownloadWeather task = new DownloadWeather();
+            task.execute(query);
+        } else {
+            Toast.makeText(getApplicationContext(), "No Internet Connection", Toast.LENGTH_LONG).show();
+        }
+    }
+
+
+    class DownloadWeather extends AsyncTask<String, Void, String> {
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+
+        }
+
+        protected String doInBackground(String... args) {
+            String xml = weather_widget.excuteGet("http://api.openweathermap.org/data/2.5/weather?q=" + args[0] +
+                    "&units=imperial&appid=" + OPEN_WEATHER_MAP_API);
+            return xml;
+        }
+
+        @Override
+        protected void onPostExecute(String xml) {
+
+            try {
+                JSONObject json = new JSONObject(xml);
+                if (json != null) {
+                    JSONObject details = json.getJSONArray("weather").getJSONObject(0);
+                    JSONObject main = json.getJSONObject("main");
+                    double newTemp = main.getDouble("temp");
+                    String newTempString = newTemp + "" + "°";
+
+                    current_temp.setText(newTempString);
+                    weatherIcon.setText(Html.fromHtml(weather_widget.setWeatherIcon(details.getInt("id"),
+                            json.getJSONObject("sys").getLong("sunrise") * 1000,
+                            json.getJSONObject("sys").getLong("sunset") * 1000)));
+
+                }
+            } catch (JSONException e) {
+                Toast.makeText(getApplicationContext(), "Error, Check City", Toast.LENGTH_SHORT).show();
+            }
+        }
+    }
 }

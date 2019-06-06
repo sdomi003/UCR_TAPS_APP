@@ -98,4 +98,38 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/weblink" />
 
+    <TextView
+        android:id="@+id/weather_icon"
+        android:layout_width="68dp"
+        android:layout_height="56dp"
+        android:layout_centerHorizontal="true"
+        android:layout_centerVertical="true"
+        android:layout_marginStart="80dp"
+        android:layout_marginTop="158dp"
+        android:layout_marginEnd="263dp"
+        android:layout_marginBottom="350dp"
+        android:text="TextView"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:textSize="20sp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/Greeting"
+        app:layout_constraintVertical_bias="0.0" />
+
+    <TextView
+        android:id="@+id/current_temp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="55dp"
+        android:layout_marginEnd="75dp"
+        android:layout_marginBottom="51dp"
+        android:text="TextView"
+        android:textAppearance="?android:attr/textAppearanceLarge"
+        android:textSize="20sp"
+        app:layout_constraintBottom_toTopOf="@+id/textView8"
+        app:layout_constraintEnd_toStartOf="@+id/LyftButton"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/weather_icon" />
+
 </android.support.constraint.ConstraintLayout>
