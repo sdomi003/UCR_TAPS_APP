@@ -219,7 +219,51 @@ public class LogSignActivity extends AppCompatActivity {
 
                     }
                 } else {
-                    Log.d(TAG, "get failed with ", task.getException());
+                    //Log.d(TAG, "get failed with ", task.getException());
+                    Map<String,Object> Data= new HashMap<>();
+                    if(user.getDisplayName() == null) {
+                        Data.put("First Name", "");
+                        Data.put("Last Name", "");
+                    }
+                    else {
+                        if (user.getDisplayName().indexOf(" ") != -1) {
+                            Data.put("First Name", user.getDisplayName().substring(0,user.getDisplayName().indexOf(" ")));
+                            Data.put("Last Name", user.getDisplayName().substring(user.getDisplayName().indexOf(" ") + 1));
+                        }
+                        else{
+                            Data.put("First Name", user.getDisplayName());
+                            Data.put("Last Name","");
+                        }
+                    }
+                    if(user.getPhoneNumber() == null){
+                        Data.put("Phone Number", "");
+                    }
+                    else {
+                        Data.put("Phone Number", user.getPhoneNumber());
+                    }
+                    Data.put("Monday", Arrays.asList());
+                    Data.put("Tuesday", Arrays.asList());
+                    Data.put("Wednesday", Arrays.asList());
+                    Data.put("Thursday", Arrays.asList());
+                    Data.put("Friday", Arrays.asList());
+                    Data.put("Favorite Lot", "None");
+                    Data.put("Favorite Transportation", "Car");
+
+                    db.collection("User_Information").document(user.getUid())
+                            .set(Data)
+                            .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                @Override
+                                public void onSuccess(Void aVoid) {
+                                    Log.d(TAG, "DocumentSnapshot successfully written!");
+                                }
+                            })
+                            .addOnFailureListener(new OnFailureListener() {
+                                @Override
+                                public void onFailure(@NonNull Exception e) {
+                                    Log.w(TAG, "Error writing document", e);
+                                }
+                            });
+
                 }
             }
         });

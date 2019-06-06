@@ -551,6 +551,20 @@ public class HomeScreen extends AppCompatActivity {
 
     private void signOut() {
         Authentication.getInstance().signOut();
+        GoogleSignInOptions googlesign = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
+                .requestIdToken(getString(R.string.default_web_client_id))
+                .requestEmail()
+                .build();
+
+        final GoogleSignInClient mGoogleSignInClient = GoogleSignIn.getClient(this, googlesign);
+
+        mGoogleSignInClient.signOut()
+                .addOnCompleteListener(HomeScreen.this,  new OnCompleteListener<Void>() {
+                    @Override
+                    public void onComplete(@NonNull Task<Void> task) {
+
+                    }
+                });
     }
 
     @Override
