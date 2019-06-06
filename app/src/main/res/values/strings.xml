@@ -23,7 +23,15 @@
     <string name="welcome">Welcome!</string>
     <string name="server_client_id">71241042505-pkaauoka384t5u7l3s4gb2t8es4t5ili.apps.googleusercontent.com</string>
     <string name="msg_token_fmt" translatable="false">InstanceID Token: %s</string>
+    <string name="weather_sunny">&#xf00d;</string>
+    <string name="weather_clear_night">&#xf02e;</string>
 
+    <string name="weather_foggy">&#xf014;</string>
+    <string name="weather_cloudy">&#xf013;</string>
+    <string name="weather_rainy">&#xf019;</string>
+    <string name="weather_snowy">&#xf01b;</string>
+    <string name="weather_thunder">&#xf01e;</string>
+    <string name="weather_drizzle">&#xf01c;</string>
 
 
     <string name="day_prompt">What day is your class?</string>

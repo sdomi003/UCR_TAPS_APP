@@ -110,7 +110,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         //Weather widget
         current_temp = (TextView) findViewById(R.id.current_temp);
         weatherIcon = (TextView) findViewById(R.id.weather_icon);
-        weatherFont = Typeface.createFromAsset(getAssets(), "fonts/weathericons-regular-webfont.ttf");
+        weatherFont = Typeface.createFromAsset(getAssets(), "font/weathericons_regular_webfont.ttf");
         weatherIcon.setTypeface(weatherFont);
 
         taskLoadUp(city);
