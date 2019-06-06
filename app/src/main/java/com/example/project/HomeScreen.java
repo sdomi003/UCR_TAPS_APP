@@ -52,7 +52,7 @@ import android.view.View;
 import android.view.View.OnClickListener;
 public class HomeScreen extends AppCompatActivity {
 
-    private FirebaseUser user;
+    private FirebaseAuth Authentication;
     private Button updatePersonal, updateSchedule,google_maps,logout,button;
     private String nextLocation;                                                //0-------------------- test
     private static User_Information userInfo;
@@ -65,8 +65,8 @@ public class HomeScreen extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         FirebaseFirestore db = FirebaseFirestore.getInstance();
-        user = getInstance().getCurrentUser();
-        String uid = user.getUid();
+        Authentication = getInstance();
+        String uid = Authentication.getCurrentUser().getUid();
 
         DocumentReference docRef = db.collection("User_Information").document(uid);
 
@@ -515,18 +515,7 @@ public class HomeScreen extends AppCompatActivity {
     }
 
     private void signOut() {
-        GoogleSignInOptions gso = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
-                .requestIdToken(getString(R.string.server_client_id))
-                .requestEmail()
-                .build();
-        GoogleSignInClient mGoogleSignInClient = GoogleSignIn.getClient(this,gso);
-        mGoogleSignInClient.signOut()
-                .addOnCompleteListener(this, new OnCompleteListener<Void>() {
-                    @Override
-                    public void onComplete(@NonNull Task<Void> task) {
-                        // ...
-                    }
-                });
+        Authentication.getInstance().signOut();
     }
 
 }

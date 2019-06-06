@@ -34,6 +34,12 @@ public class LogSignActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_log_sign);
 
+        if(Authentication.getCurrentUser() != null)
+        {
+            Intent myIntent = new Intent(LogSignActivity.this,HomeScreen.class );
+            startActivity(myIntent);
+        }
+
         GoogleSignInOptions googlesign = new GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
                 .requestIdToken(getString(R.string.default_web_client_id))
                 .requestEmail()
