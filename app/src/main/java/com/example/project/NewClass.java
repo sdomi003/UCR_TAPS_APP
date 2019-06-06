@@ -61,7 +61,20 @@ public class NewClass extends AppCompatActivity {
                 Spinner schoolDay=findViewById(R.id.schoolday);
                 Spinner location=findViewById(R.id.location);
                 String ClassName= ((EditText)findViewById(R.id.Class_Name)).getText().toString();
-                String Time= hour + "" + min;
+                String Time;
+                if(hour < 10) {
+                    Time = "0" + hour;
+                }
+                else {
+                    Time = Integer.toString(hour);
+                }
+                Time += ":";
+                if(min<10){
+                    Time += "0"+min;
+                }
+                else {
+                    Time += Integer.toString(min);
+                }
 
                 String Entry= location.getSelectedItem().toString() + '-' + Time + '-' + ClassName;
                 DocumentReference docRef = db.collection("User_Information").document(uid);

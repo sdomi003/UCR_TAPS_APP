@@ -58,7 +58,7 @@ import android.view.View.OnClickListener;
 public class HomeScreen extends AppCompatActivity {
 
     private FirebaseAuth Authentication;
-    private Button updatePersonal, updateSchedule,google_maps,logout,button;
+    private Button google_maps,button;
     private String nextLocation;                                                //0-------------------- test
     private static User_Information userInfo;
     private static final String TAG = "User";
@@ -508,10 +508,11 @@ public class HomeScreen extends AppCompatActivity {
         }
         String nextClassLocation = "N/A";
         for (int a = 0; a < classes.size(); a++) {
-            int firstDash = classes.get(a).indexOf('-');
-            int classTime = Integer.parseInt(classes.get(a).substring(firstDash + 1, classes.get(a).lastIndexOf('-')));
+            String nice = classes.get(a).replace(":","");
+            int firstDash = nice.indexOf('-');
+            int classTime = Integer.parseInt(nice.substring(firstDash + 1, nice.lastIndexOf('-')));
             if(time < classTime && classTime < earliest_time) {
-                nextClassLocation = classes.get(a).substring(0,firstDash);
+                nextClassLocation = nice.substring(0,firstDash);
                 earliest_time = classTime;
             }
         }
