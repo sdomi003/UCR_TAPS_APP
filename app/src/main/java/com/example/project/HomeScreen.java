@@ -553,4 +553,11 @@ public class HomeScreen extends AppCompatActivity {
         Authentication.getInstance().signOut();
     }
 
+    @Override
+    public void onBackPressed() {
+        Intent myIntent = new Intent(this, HomeScreen.class);
+
+        startActivity(myIntent);
+    }
+
 }
