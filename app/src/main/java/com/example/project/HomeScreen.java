@@ -1,5 +1,8 @@
 package com.example.project;
 
+import android.app.ActivityManager;
+import android.content.Intent;
+import android.content.Context;
 
 import android.content.Context;
 import android.content.Intent;
@@ -56,9 +59,9 @@ public class HomeScreen extends AppCompatActivity {
     private Button updatePersonal, updateSchedule,google_maps,logout,button;
     private String nextLocation;                                                //0-------------------- test
     private static User_Information userInfo;
-
     private static final String TAG = "User";
 
+    Intent serviceIntent;
     private static final String TAG_2 = "lyft:Example";
     private static final String LYFT_PACKAGE = "me.lyft.android";
 
@@ -69,6 +72,10 @@ public class HomeScreen extends AppCompatActivity {
         String uid = Authentication.getCurrentUser().getUid();
 
         DocumentReference docRef = db.collection("User_Information").document(uid);
+
+        //Start notification service pt 1
+        Log.d(TAG, "Initiate new intent");
+        serviceIntent = new Intent(this, Lot_Service.class);
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home_screen);
@@ -83,6 +90,15 @@ public class HomeScreen extends AppCompatActivity {
                     if (document.exists()) {
                         Log.d(TAG, "DocumentSnapshot data: " + document.getData());
                         userInfo = new User_Information(document);
+
+                        String favLot = userInfo.AccessLot(); //Pass user's favorite lot
+                        serviceIntent.putExtra("Favorite Lot", favLot);
+                        Log.d(TAG, "HomeScreen favLot: " + favLot);
+
+                        Lot_Service lotService = new Lot_Service(); //Start notification service pt 2
+                        if (!isMyServiceRunning(lotService.getClass())) {
+                            startService(serviceIntent);
+                        }
                     } else {
                         Log.d(TAG, "No such document");
                     }
@@ -210,6 +226,13 @@ public class HomeScreen extends AppCompatActivity {
             // ignored.
         }
         return false;
+    }
+
+    @Override
+    protected void onDestroy() {
+        stopService(serviceIntent);
+        Log.d(TAG, "onDestroy");
+        super.onDestroy();;
     }
 
     private String lot_to_URL(String preferred_lot) {
@@ -512,6 +535,18 @@ public class HomeScreen extends AppCompatActivity {
 
         });
 
+    }
+
+    private boolean isMyServiceRunning(Class<?> serviceClass) {
+        ActivityManager manager = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
+        for (ActivityManager.RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)) {
+            if (serviceClass.getName().equals(service.service.getClassName())) {
+                Log.i("Service status", "Running");
+                return true;
+            }
+        }
+        Log.i("Service status", "Not running");
+        return false;
     }
 
     private void signOut() {
