@@ -1,6 +1,9 @@
 package com.example.project;
 
+
+import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -55,6 +58,9 @@ public class HomeScreen extends AppCompatActivity {
     private static User_Information userInfo;
 
     private static final String TAG = "User";
+
+    private static final String TAG_2 = "lyft:Example";
+    private static final String LYFT_PACKAGE = "me.lyft.android";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -161,6 +167,49 @@ public class HomeScreen extends AppCompatActivity {
             }
         });
 
+
+
+
+        findViewById(R.id.LyftButton).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                deepLinkIntoLyft();
+            }
+        });
+
+
+    }
+
+    private void deepLinkIntoLyft() {
+        if (isPackageInstalled(this, LYFT_PACKAGE)) {
+            //This intent will help you to launch if the package is already installed
+            String l = lot_to_DeepLink(nextClass(userInfo));
+            openLink(this, l);
+
+            Log.d(TAG, "Lyft is already installed on your phone.");
+        } else {
+            openLink(this, "https://www.lyft.com/signup/SDKSIGNUP?clientId=YOUR_CLIENT_ID&sdkName=android_direct");
+
+            Log.d(TAG, "Lyft is not currently installed on your phone..");
+        }
+    }
+
+    static void openLink(Activity activity, String link) {
+        Intent playStoreIntent = new Intent(Intent.ACTION_VIEW);
+        playStoreIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        playStoreIntent.setData(Uri.parse(link));
+        activity.startActivity(playStoreIntent);
+    }
+
+    static boolean isPackageInstalled(Context context, String packageId) {
+        PackageManager pm = context.getPackageManager();
+        try {
+            pm.getPackageInfo(packageId, PackageManager.GET_ACTIVITIES);
+            return true;
+        } catch (PackageManager.NameNotFoundException e) {
+            // ignored.
+        }
+        return false;
     }
 
     private String lot_to_URL(String preferred_lot) {
@@ -192,6 +241,36 @@ public class HomeScreen extends AppCompatActivity {
                 break;
             default:
                 r = "ERROR NO PREFERRED LOT";
+        }
+        return r;
+    }
+
+    private String lot_to_DeepLink(String next_class_loc) {
+        String r;
+        switch (next_class_loc) {
+            case "Winston Chung Hall":
+                // Whatever you want to happen when the first item gets selected
+                r = "lyft://ridetype?id=lyft&destination[latitude]=33.9753&destination[longitude]=-117.3259";
+                break;
+            case "Bourns Hall":
+                // Whatever you want to happen when the second item gets selected
+                r = "lyft://ridetype?id=lyft&destination[latitude]=33.9753&destination[longitude]=-117.3269";
+                break;
+            case "Sproul Hall":
+                // Whatever you want to happen when the thrid item gets selected
+                r = "lyft://ridetype?id=lyft&destination[latitude]=33.9718&destination[longitude]=-117.3298";
+                break;
+            case "Watkins Hall":
+                // Whatever you want to happen when the first item gets selected
+                r = "lyft://ridetype?id=lyft&destination[latitude]=33.9718&destination[longitude]=-117.3298";
+                break;
+            case "Pierce Hall":
+                // Whatever you want to happen when the second item gets selected
+                r = "lyft://ridetype?id=lyft&destination[latitude]=33.9740&destination[longitude]=-117.3275";
+                break;
+            default:
+                r = "lyft://ridetype?id=lyft&destination[latitude]=33.9718&destination[longitude]=-117.3298";
+                break;
         }
         return r;
     }
