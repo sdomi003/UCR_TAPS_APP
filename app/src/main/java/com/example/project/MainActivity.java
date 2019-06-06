@@ -205,7 +205,12 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
             return jsonp.substring(left, right);
         }
     }
+    @Override
+    public void onBackPressed() {
+        Intent myIntent = new Intent(this, MainActivity.class);
 
+        startActivity(myIntent);
+    }
     @Override
     public void onNothingSelected(AdapterView<?> parent) {
         // TODO Auto-generated method stub
