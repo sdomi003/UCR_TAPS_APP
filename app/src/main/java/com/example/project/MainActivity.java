@@ -3,8 +3,8 @@ package com.example.project;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
+import android.support.annotation.NonNull;
 import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
@@ -12,11 +12,6 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.Spinner;
 import android.widget.TextView;
-
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
-import com.google.firebase.iid.FirebaseInstanceId;
-import com.google.firebase.iid.InstanceIdResult;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -27,6 +22,11 @@ import java.io.InputStreamReader;
 import java.net.URL;
 import java.net.URLConnection;
 import java.nio.charset.Charset;
+
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.iid.FirebaseInstanceId;
+import com.google.firebase.iid.InstanceIdResult;
 
 
 public class MainActivity extends AppCompatActivity implements AdapterView.OnItemSelectedListener {
@@ -62,7 +62,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
         //Need submit button functionality that goes back to MainActivity
         //----------------------------------------------------------------------------------
 
-        spinner = findViewById(R.id.lot_spinner);
+        spinner = (Spinner) findViewById(R.id.lot_spinner);
         ArrayAdapter<String> adapter = new ArrayAdapter<String>(MainActivity.this,
                 android.R.layout.simple_spinner_item, paths);
 
@@ -89,13 +89,6 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
                     }
                 });
 
-    }
-
-    @Override
-    public void onBackPressed() {
-        Intent myIntent = new Intent(this, MainActivity.class);
-
-        startActivity(myIntent);
     }
 
     //------------------------------------------/
@@ -151,7 +144,7 @@ public class MainActivity extends AppCompatActivity implements AdapterView.OnIte
 
         @Override
         protected void onPostExecute(String jsonp) {
-            final TextView tv = findViewById(R.id.guest_lot_info_view);
+            final TextView tv = (TextView) findViewById(R.id.guest_lot_info_view);
 
             try {
                 JSONObject jsonResult = getJSONObject(jsonp);

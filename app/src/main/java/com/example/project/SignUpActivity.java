@@ -45,8 +45,8 @@ public class SignUpActivity extends AppCompatActivity {
         SignUpDone.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                EditText pass_field = findViewById(R.id.password2);
-                EditText user_field = findViewById(R.id.email2);
+                EditText pass_field = (EditText)findViewById(R.id.password2);
+                EditText user_field = (EditText)findViewById(R.id.email2);
                 String email = user_field.getText().toString();
                 String password = pass_field.getText().toString();
 
@@ -76,7 +76,6 @@ public class SignUpActivity extends AppCompatActivity {
             }
         });
     }
-
     private void helper(String UID){
         Map<String,Object> Data= new HashMap<>();
         Data.put("First Name", "");

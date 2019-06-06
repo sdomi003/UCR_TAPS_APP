@@ -15,7 +15,7 @@ public class LaunchGoogleMaps extends AppCompatActivity {
         Uri gmmIntentUri;
         String next_lot_URL_and_preferred_transport = getIntent().getStringExtra("next_lot_URL_and_preferred_transport");
 
-        String[] arr = next_lot_URL_and_preferred_transport.split(" ", 2);
+        String arr[] = next_lot_URL_and_preferred_transport.split(" ", 2);
 
         next_class_url = arr[0];
         String preferred_transport = arr[1];

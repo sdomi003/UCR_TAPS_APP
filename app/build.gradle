@@ -37,9 +37,6 @@ dependencies {
     implementation 'com.google.firebase:firebase-auth:17.0.0'
     implementation 'com.google.android.gms:play-services-auth:16.0.1'
     implementation 'com.lyft:lyft-android-sdk:1.0.3'
-    implementation fileTree(dir: '/Users/Krishna/Downloads/twitter4j-4.0.7/lib', include: ['*.aar', '*.jar'], exclude: [])
-    implementation 'com.twitter.sdk.android:twitter:3.1.1'
-    implementation files('UCR_TAPS_APP-master/lib')
 
 }
 

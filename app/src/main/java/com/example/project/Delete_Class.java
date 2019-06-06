@@ -137,7 +137,7 @@ public class Delete_Class extends AppCompatActivity {
                         }
                         if(thursday.size() != 0)
                         {
-                            ListView lv = findViewById(R.id.thursday_list);
+                            ListView lv = (ListView) findViewById(R.id.thursday_list);
                             final ArrayAdapter<String> thursday_adapter = new ArrayAdapter<String>(Delete_Class.this,android.R.layout.simple_list_item_1,thursday);
                             lv.setAdapter(thursday_adapter);
                             lv.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
@@ -160,7 +160,7 @@ public class Delete_Class extends AppCompatActivity {
                         }
                         if(friday.size() != 0)
                         {
-                            ListView lv = findViewById(R.id.friday_list);
+                            ListView lv = (ListView) findViewById(R.id.friday_list);
                             final ArrayAdapter<String> friday_adapter = new ArrayAdapter<String>(Delete_Class.this,android.R.layout.simple_list_item_1,friday);
                             lv.setAdapter(friday_adapter);
                             lv.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
