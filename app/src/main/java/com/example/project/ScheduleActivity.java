@@ -107,14 +107,6 @@ public class ScheduleActivity extends AppCompatActivity {
             }
         });
 
-        Back = findViewById(R.id.Back);
-        Back.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent myIntent = new Intent(ScheduleActivity.this,HomeScreen.class);
-                startActivity(myIntent);
-            }
-        });
 
     }
 
